@@ -1,15 +1,24 @@
 <script setup>
 import { useFilesStore } from '@/stores/FilesStore.js';
+import { useI18nStore } from '@/stores/I18nStore.js';
 
-const store = useFilesStore();
+const filesStore = useFilesStore();
+const i18nStore = useI18nStore();
 
-if (!store.filesData) {
-    store.getFiles();
+if (!filesStore.filesData) {
+    filesStore.getFiles();
+}
+
+if (!i18nStore.i18nData) {
+    i18nStore.getI18n();
 }
 </script>
 
 <template>
-    <pre>{{ store.filesData }}</pre>
+    <div class="flex flex-row">
+        <pre>{{ filesStore.filesData }}</pre>
+        <pre>{{ i18nStore.i18nData }}</pre>
+    </div>
 </template>
 
 <style scoped></style>
