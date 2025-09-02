@@ -6,6 +6,12 @@
  * This script compiles all sources into one single file.
  */
 
+// Build frontend
+chdir(__DIR__ . "/frontend");
+
+exec("npm run build");
+
+// Build backend
 chdir(realpath(dirname(__FILE__)));
 
 // output files and common attrs
