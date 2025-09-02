@@ -118,11 +118,18 @@ class IFM {
 	 * This function contains the client-side application
 	 */
 	public function getApplication() {
+		echo <<<'f00bar'
+			###FRONTEND###
+f00bar;
+
+
+        /*
 		$this->getHTMLHeader();
 		print '<div id="ifm"></div>';
 		$this->getJS();
 		print '<script>var ifm = new IFM(); ifm.init("ifm");</script>';
 		$this->getHTMLFooter();
+         */
 	}
 
 	public function getInlineApplication() {
@@ -145,7 +152,7 @@ f00bar;
 
 	public function getHTMLHeader() {
 		print '<!DOCTYPE HTML>
-		<html>
+		    <html>
 			<head>
 				<title>IFM - improved file manager</title>
 				<meta charset="utf-8">

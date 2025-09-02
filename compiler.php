@@ -81,8 +81,13 @@ foreach ($IFM_SRC_PHP as $phpfile) {
 $compiled = join($compiled);
 
 // Include assets
+/*
 $compiled = str_replace("###ASSETS_CSS###", file_get_contents("src/assets".(IFM_CDN?".cdn":"").".css"), $compiled);
 $compiled = str_replace("###ASSETS_JS###", file_get_contents("src/assets".(IFM_CDN?".cdn":"").".js"), $compiled);
+ */
+
+// Load whole frontend
+$compiled = str_replace("###FRONTEND###", file_get_contents("frontend/dist/index.html"), $compiled);
 
 // Process file includes
 $includes = NULL;
