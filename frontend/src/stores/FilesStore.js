@@ -10,7 +10,7 @@ export const useFilesStore = defineStore('files', {
     actions: {
         async getFiles() {
             try {
-                const res = await fetch('http://localhost:8000/ifm.php?api=getFiles', {
+                const res = await fetch(window.location.href + '?api=getFiles', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     data: {

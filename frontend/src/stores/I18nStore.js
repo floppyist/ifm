@@ -10,7 +10,7 @@ export const useI18nStore = defineStore('i18n', {
     actions: {
         async getI18n() {
             try {
-                const res = await fetch('http://localhost:8000/ifm.php?api=getI18N', {
+                const res = await fetch(window.location.href + '?api=getI18N', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                 });

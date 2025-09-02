@@ -132,6 +132,7 @@ f00bar;
          */
 	}
 
+    // TODO: Can be deleted
 	public function getInlineApplication() {
 		$this->getCSS();
 		print '<div id="ifm"></div>';
