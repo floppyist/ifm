@@ -1,12 +1,15 @@
 <script setup>
-import { ref } from 'vue';
+import { useFilesStore } from '@/stores/FilesStore.js';
 
-const test = ref("test");
+const store = useFilesStore();
+
+if (!store.filesData) {
+    store.getFiles();
+}
 </script>
 
 <template>
-    <input v-model="test">
-    <p>{{ test }}</p>
+    <pre>{{ store.filesData }}</pre>
 </template>
 
 <style scoped></style>
