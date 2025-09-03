@@ -1,4 +1,6 @@
 <script setup>
+import { ref, onMounted, computed } from 'vue';
+
 import { useFilesStore } from '@/stores/FilesStore.js';
 
 import { 
@@ -15,9 +17,13 @@ import {
 
 const filesStore = useFilesStore();
 
-if (!filesStore.clientData) {
-    filesStore.getFiles("");
-}
+onMounted(async () => {
+    await filesStore.getFiles();
+});
+
+const filteredList = computed(() => {
+    return filesStore.filesData.filter(f => f.name.includes(filesStore.search)) || [];
+});
 </script>
 
 <template>
@@ -35,7 +41,7 @@ if (!filesStore.clientData) {
             </tr>
         </thead>
         <tbody >
-            <tr v-for="file in filesStore.filesData" :key="file.name" class="hover:bg-[#add8e6]">
+            <tr v-for="file in filteredList" :key="file.name" class="hover:bg-[#add8e6]">
                 <td class="h-10">
                     <div class="flex justify-center items-center">
                         <DocumentIcon v-if="file.type === 'file'" class="size-5 text-[#337ab7]" />

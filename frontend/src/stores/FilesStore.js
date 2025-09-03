@@ -5,7 +5,8 @@ import axios from 'axios';
 export const useFilesStore = defineStore('files', {
     state() {
         return {
-            filesData: null,
+            filesData: [],
+            search: '',
         }
     },
 
@@ -24,6 +25,10 @@ export const useFilesStore = defineStore('files', {
             }
         },
 
+        setSearch(query) {
+            this.search = query;
+        },
+
         async createDir(dir, dirname) {
             const params = new URLSearchParams();
             params.append('api', 'createDir');
@@ -35,6 +40,6 @@ export const useFilesStore = defineStore('files', {
             } catch (err) {
                 console.log(err);
             }
-        }
+        },
     }
 });

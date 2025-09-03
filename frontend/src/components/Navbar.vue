@@ -1,4 +1,8 @@
 <script setup>
+import { ref } from 'vue';
+
+import { useFilesStore } from '@/stores/FilesStore.js';
+
 import { 
     ArrowPathIcon, 
     ArrowDownTrayIcon, 
@@ -6,6 +10,14 @@ import {
     FolderPlusIcon,
     Bars3Icon,
 } from '@heroicons/vue/24/outline';
+
+const filesStore = useFilesStore();
+
+const search = ref(filesStore.search);
+
+function updateSearch() {
+    filesStore.setSearch(search.value);
+}
 </script>
 
 <template>
@@ -14,7 +26,7 @@ import {
             <div class="text-2xl font-bold">
                 <p>IFM</p>
             </div>
-            <input class="bg-white text-[#222222] pl-1 focus:outline-none" placeholder="Search..">
+            <input v-model="search" @input="updateSearch" class="bg-white text-[#222222] pl-1 focus:outline-none" placeholder="Search..">
             <div class="flex justify-end w-full items-center gap-3">
                 <ArrowPathIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
                 <ArrowDownTrayIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
