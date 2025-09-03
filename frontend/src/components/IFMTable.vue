@@ -17,8 +17,12 @@ import {
 
 const filesStore = useFilesStore();
 
+const isLoading = ref(true);
+
 onMounted(async () => {
     await filesStore.getFiles();
+
+    isLoading.value = false;
 });
 
 const filteredList = computed(() => {
@@ -27,8 +31,12 @@ const filteredList = computed(() => {
 </script>
 
 <template>
-    <table class="w-full text-center">
-        <thead class="h-10">
+    <div v-show="isLoading" class="flex items-center justify-center h-full">
+        <div class="w-12 h-12 border-4 border-[#337ab7] border-dashed rounded-full animate-spin"></div>
+    </div>
+
+    <table v-show="isLoading == false" class="w-full text-center">
+        <thead class="h-10 bg-slate-300">
             <tr>
                 <th></th>
                 <th class="text-left">Filename</th>

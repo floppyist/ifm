@@ -21,7 +21,7 @@ function updateSearch() {
 </script>
 
 <template>
-    <nav class="sticky bg-[#222222] text-slate-200">
+    <nav class="sticky bg-slate-600 text-slate-200">
         <div class="h-12 p-3 flex items-center gap-3">
             <div class="text-2xl font-bold">
                 <p>IFM</p>
