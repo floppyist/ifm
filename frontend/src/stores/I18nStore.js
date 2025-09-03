@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+import axios from 'axios';
+
 export const useI18nStore = defineStore('i18n', {
     state() {
         return {
@@ -9,18 +11,16 @@ export const useI18nStore = defineStore('i18n', {
 
     actions: {
         async getI18n() {
+            const params = new URLSearchParams();
+            params.append('api', 'getI18N');
+
             try {
-                const res = await fetch(window.location.href + '?api=getI18N', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                });
+                const res = await axios.post(window.location.href, params);
 
-                const data = await res.json();
-
-                this.i18nData = data;
+                this.i18nData = res.data;
             } catch (err) {
                 console.log(err);
-            } 
-        }
+            }
+        },
     }
 });

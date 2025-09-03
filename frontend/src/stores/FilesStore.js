@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+import axios from 'axios';
+
 export const useFilesStore = defineStore('files', {
     state() {
         return {
@@ -8,22 +10,31 @@ export const useFilesStore = defineStore('files', {
     },
 
     actions: {
-        async getFiles() {
+        async getFiles(dir) {
+            const params = new URLSearchParams();
+            params.append('api', 'getFiles');
+            params.append('dir', dir);
+
             try {
-                const res = await fetch(window.location.href + '?api=getFiles', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    data: {
-                        dir: "",
-                    }
-                });
+                const res = await axios.post(window.location.href, params);
 
-                const data = await res.json();
-
-                this.filesData = data;
+                this.filesData = res.data;
             } catch (err) {
                 console.log(err);
-            } 
+            }
+        },
+
+        async createDir(dir, dirname) {
+            const params = new URLSearchParams();
+            params.append('api', 'createDir');
+            params.append('dir', dir);
+            params.append('dirname', dirname);
+
+            try {
+                const res = await axios.post(window.location.href, params);
+            } catch (err) {
+                console.log(err);
+            }
         }
     }
 });

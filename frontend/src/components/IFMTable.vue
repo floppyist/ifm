@@ -4,7 +4,7 @@ import { useFilesStore } from '@/stores/FilesStore.js';
 const filesStore = useFilesStore();
 
 if (!filesStore.clientData) {
-    filesStore.getFiles();
+    filesStore.getFiles("");
 }
 </script>
 
