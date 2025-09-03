@@ -2,6 +2,8 @@
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useI18nStore } from '@/stores/I18nStore.js';
 
+import Navbar from '@/components/Navbar.vue';
+
 const filesStore = useFilesStore();
 const i18nStore = useI18nStore();
 
@@ -15,10 +17,9 @@ if (!i18nStore.i18nData) {
 </script>
 
 <template>
-    <div class="flex flex-row">
-        <pre>{{ filesStore.filesData }}</pre>
-        <pre>{{ i18nStore.i18nData }}</pre>
-    </div>
+    <main class="flex flex-col h-screen bg-slate-300">
+        <Navbar></Navbar>
+    </main>
 </template>
 
 <style scoped></style>
