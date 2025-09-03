@@ -7,11 +7,14 @@ export const useFilesStore = defineStore('files', {
         return {
             filesData: [],
             search: '',
+            isLoading: false,
         }
     },
 
     actions: {
         async getFiles(dir) {
+            this.isLoading = true;
+
             const params = new URLSearchParams();
             params.append('api', 'getFiles');
             params.append('dir', dir);
@@ -23,6 +26,8 @@ export const useFilesStore = defineStore('files', {
             } catch (err) {
                 console.log(err);
             }
+
+            this.isLoading = false;
         },
 
         setSearch(query) {
