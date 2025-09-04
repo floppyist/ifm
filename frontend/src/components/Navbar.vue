@@ -22,12 +22,20 @@ function updateSearch() {
 
 <template>
     <nav class="sticky bg-slate-600 text-slate-200">
-        <div class="h-12 p-3 flex items-center gap-3">
-            <div class="text-2xl font-bold">
-                <p>IFM</p>
+        <div class="flex flex-wrap justify-between p-3 flex items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="text-2xl font-bold">
+                    <p>IFM</p>
+                </div>
+
+                <input 
+                    v-model="search" 
+                    @input="updateSearch" 
+                    class="bg-white text-[#222222] pl-1 focus:outline-none rounded-sm" 
+                    placeholder="Search..">
             </div>
-            <input v-model="search" @input="updateSearch" class="bg-white text-[#222222] pl-1 focus:outline-none" placeholder="Search..">
-            <div class="flex justify-end w-full items-center gap-3">
+
+            <div class="flex flex-wrap items-center gap-3">
                 <ArrowPathIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
                 <ArrowDownTrayIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
                 <DocumentPlusIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
