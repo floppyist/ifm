@@ -30,6 +30,7 @@ function updateSearch() {
 
                 <input 
                     v-model="search" 
+                    v-show="!filesStore.isLoading"
                     @input="updateSearch" 
                     class="bg-white text-[#222222] pl-1 focus:outline-none rounded-sm" 
                     placeholder="Search..">
