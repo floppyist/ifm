@@ -13,6 +13,7 @@ import {
     PencilSquareIcon,
     CodeBracketIcon,
     TrashIcon,
+    ChevronDoubleUpIcon,
 } from '@heroicons/vue/24/solid';
 
 const filesStore = useFilesStore();
@@ -91,12 +92,13 @@ function handleFileNavigation(file) {
                         <div class="flex justify-center items-center">
                             <DocumentIcon v-if="file.type === 'file'" class="size-5 text-[#337ab7]" />
                             <FolderIcon v-if="file.type === 'dir' && file.name !== '..'" class="size-5 text-[#337ab7]" />
+                            <ChevronDoubleUpIcon v-if="file.name === '..'" class="size-5 text-[#337ab7]" />
                         </div>
                     </td>
                     <td 
                         @click="handleFileNavigation(file)"
                         class="w-75 text-left text-[#337ab7] cursor-pointer hover:underline">
-                        {{ file.name }}
+                        {{ (file.name === '..') ? '[up]' : file.name }}
                     </td>
                     <td>
                         <div class="flex justify-center items-center">

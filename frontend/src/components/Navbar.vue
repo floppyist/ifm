@@ -22,7 +22,7 @@ function updateSearch() {
 
 <template>
     <nav class="sticky bg-slate-600 text-slate-200">
-        <div class="flex flex-wrap justify-between p-3 flex items-center gap-3">
+        <div class="flex flex-wrap justify-between p-3 items-center gap-3">
             <div class="flex items-center gap-3">
                 <div class="text-2xl font-bold">
                     <p>IFM</p>
