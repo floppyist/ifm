@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 
 import { defineStore } from 'pinia';
 
@@ -6,6 +6,7 @@ import axios from 'axios';
 
 export const useFilesStore = defineStore('files', () => {
     const filesData = ref([]);
+    const currentPath = ref("");
     const search = ref('');
     const isLoading = ref(false);
 
@@ -47,9 +48,14 @@ export const useFilesStore = defineStore('files', () => {
         return filesData.value.filter(f => f.name.includes(search.value));
     });
 
+    watch(currentPath, (newPath) => {
+        getFiles(newPath);
+    });
+
     return {
         filesData,
         filteredFilesData,
+        currentPath,
         search,
         isLoading,
         getFiles,

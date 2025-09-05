@@ -47,6 +47,22 @@ const bottomSpacer = computed(() => {
 
     return Math.max(0, (filesStore.filteredFilesData.length - to.value) * rowHeight);
 });
+
+function handleFileNavigation(file) {
+    switch (file.type) {
+        case 'dir':
+            if (file.name === '..') {
+                filesStore.currentPath = filesStore.currentPath.substring(0, filesStore.currentPath.lastIndexOf('/'));
+            } else {
+                if (filesStore.currentPath === '') {
+                    filesStore.currentPath = file.name;
+                } else {
+                    filesStore.currentPath += '/' + file.name;
+                }
+            }
+        default: break;
+    }
+}
 </script>
 
 <template>
@@ -72,14 +88,20 @@ const bottomSpacer = computed(() => {
                 <!-- Top spacer for infinite scroll -->
                 <tr style="height: 0" :style="{ height: topSpacer + 'px' }"></tr>
 
-                <tr v-for="file in filesStore.filteredFilesData.slice(from, to)" :key="file.name" class="hover:bg-[#add8e6]" :style="{ height: rowHeight + 'px' }">
+                <tr v-for="file in filesStore.filteredFilesData.slice(from, to)" :key="file.name" 
+                    class="hover:bg-[#add8e6]" 
+                    :style="{ height: rowHeight + 'px' }">
                     <td>
                         <div class="flex justify-center items-center">
                             <DocumentIcon v-if="file.type === 'file'" class="size-5 text-[#337ab7]" />
                             <FolderIcon v-if="file.type === 'dir' && file.name !== '..'" class="size-5 text-[#337ab7]" />
                         </div>
                     </td>
-                    <td class="w-75 text-left text-[#337ab7] cursor-pointer">{{ file.name }}</td>
+                    <td 
+                        @click="handleFileNavigation(file)"
+                        class="w-75 text-left text-[#337ab7] cursor-pointer hover:underline">
+                        {{ file.name }}
+                    </td>
                     <td>
                         <div class="flex justify-center items-center">
                             <CloudArrowDownIcon v-if="file.name !== '..'" class="size-4 text-[#337ab7] cursor-pointer" />
