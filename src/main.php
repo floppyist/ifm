@@ -75,7 +75,7 @@ class IFM {
 
 	private $config = [];
 	private $i18n = [];
-	public $mode = "" // Set this option to "api" to use IFM without frontend deployment
+	public $mode = ""; // Set this option to "api" to use IFM without frontend deployment
 	private $initialWD;
 
 	public function __construct($config=[]) {
@@ -127,15 +127,14 @@ f00bar;
 	 * main functions
 	 */
 
-	public function run($mode) {
+	public function run() {
 		try {
 			if (!is_dir(realpath($this->config['root_dir'])) || !is_readable(realpath($this->config['root_dir'])))
 				throw new IFMException("Cannot access root_dir.", false);
 
 			chdir(realpath($this->config['root_dir']));
 
-			$this->mode = $mode;
-			if (isset($_REQUEST['api']) || $mode == "api")
+			if (isset($_REQUEST['api']) || $this->mode == "api")
 				$this->jsonResponse($this->dispatch());
 			else
 				$this->getApplication();
@@ -148,6 +147,9 @@ f00bar;
 
 	private function dispatch() {
 		// APIs which do not need authentication
+
+        if (!isset($_REQUEST['api'])) return ["status" => "ERROR", "message" => "Browser is not supported while using IFM in API-Mode"];
+
 		switch ($_REQUEST['api']) {
 			case "checkAuth":
 				if ($this->checkAuth())
