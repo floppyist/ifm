@@ -40,22 +40,12 @@ function updateRange() {
     to.value = end;
 }
 
-const displayedList = computed(() => {
-    if (!filesStore.filesData) return [];
-
-    return filesStore.filesData
-        .filter(f => f.name.includes(filesStore.search))
-        .slice(from.value, to.value);
-});
-
 const topSpacer = computed(() => from.value * rowHeight);
 
 const bottomSpacer = computed(() => {
     if (!filesStore.filesData) return 0;
 
-    const filtered = filesStore.filesData.filter(f => f.name.includes(filesStore.search));
-
-    return Math.max(0, (filtered.length - to.value) * rowHeight);
+    return Math.max(0, (filesStore.filteredFilesData.length - to.value) * rowHeight);
 });
 </script>
 
@@ -82,7 +72,7 @@ const bottomSpacer = computed(() => {
                 <!-- Top spacer for infinite scroll -->
                 <tr style="height: 0" :style="{ height: topSpacer + 'px' }"></tr>
 
-                <tr v-for="file in displayedList" :key="file.name" class="hover:bg-[#add8e6]" :style="{ height: rowHeight + 'px' }">
+                <tr v-for="file in filesStore.filteredFilesData.slice(from, to)" :key="file.name" class="hover:bg-[#add8e6]" :style="{ height: rowHeight + 'px' }">
                     <td>
                         <div class="flex justify-center items-center">
                             <DocumentIcon v-if="file.type === 'file'" class="size-5 text-[#337ab7]" />

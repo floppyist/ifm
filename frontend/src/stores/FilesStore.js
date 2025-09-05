@@ -1,50 +1,60 @@
-import { defineStore } from 'pinia'
+import { ref, computed } from 'vue';
+
+import { defineStore } from 'pinia';
 
 import axios from 'axios';
 
-export const useFilesStore = defineStore('files', {
-    state() {
-        return {
-            filesData: [],
-            search: '',
-            isLoading: false,
+export const useFilesStore = defineStore('files', () => {
+    const filesData = ref([]);
+    const search = ref('');
+    const isLoading = ref(false);
+
+    const getFiles = async (dir) => {
+        isLoading.value = true;
+
+        const params = new URLSearchParams();
+        params.append('api', 'getFiles');
+        params.append('dir', dir);
+
+        try {
+            const res = await axios.post(window.location.href, params);
+            filesData.value = res.data;
+        } catch (err) {
+            console.log(err);
         }
-    },
 
-    actions: {
-        async getFiles(dir) {
-            this.isLoading = true;
+        isLoading.value = false;
+    };
 
-            const params = new URLSearchParams();
-            params.append('api', 'getFiles');
-            params.append('dir', dir);
+    const createDir = async (dir, dirname) => {
+        const params = new URLSearchParams();
+        params.append('api', 'createDir');
+        params.append('dir', dir);
+        params.append('dirname', dirname);
 
-            try {
-                const res = await axios.post(window.location.href, params);
+        try {
+            await axios.post(window.location.href, params);
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
-                this.filesData = res.data;
-            } catch (err) {
-                console.log(err);
-            }
+    const setSearch = (query) => {
+        search.value = query;
+    };
 
-            this.isLoading = false;
-        },
+    const filteredFilesData = computed(() => {
+        return filesData.value.filter(f => f.name.includes(search.value));
+    });
 
-        setSearch(query) {
-            this.search = query;
-        },
-
-        async createDir(dir, dirname) {
-            const params = new URLSearchParams();
-            params.append('api', 'createDir');
-            params.append('dir', dir);
-            params.append('dirname', dirname);
-
-            try {
-                const res = await axios.post(window.location.href, params);
-            } catch (err) {
-                console.log(err);
-            }
-        },
-    }
+    return {
+        filesData,
+        filteredFilesData,
+        search,
+        isLoading,
+        getFiles,
+        setSearch,
+        createDir,
+    };
 });
+
