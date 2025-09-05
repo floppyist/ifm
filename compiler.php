@@ -86,43 +86,8 @@ foreach ($IFM_SRC_PHP as $phpfile) {
 }
 $compiled = join($compiled);
 
-// Include assets
-/*
-$compiled = str_replace("###ASSETS_CSS###", file_get_contents("src/assets".(IFM_CDN?".cdn":"").".css"), $compiled);
-$compiled = str_replace("###ASSETS_JS###", file_get_contents("src/assets".(IFM_CDN?".cdn":"").".js"), $compiled);
- */
-
-// Load whole frontend
+// Frontend include
 $compiled = str_replace("###FRONTEND###", file_get_contents("frontend/dist/index.html"), $compiled);
-
-// Process file includes
-$includes = NULL;
-preg_match_all("/\#\#\#file:([^\#]+)\#\#\#/", $compiled, $includes, PREG_SET_ORDER);
-foreach ($includes as $file) {
-	$compiled = str_replace($file[0], file_get_contents($file[1]), $compiled);
-}
-
-// Process ace includes
-$includes = null;
-$vars['ace_includes'] = "";
-preg_match_all("/\#\#\#acedir:([^\#]+)\#\#\#/", $compiled, $includes, PREG_SET_ORDER);
-foreach ($includes as $dir) {
-	$dircontent = "";
-	foreach (glob($dir[1] . "/*") as $file) {
-		if (is_file($file) && is_readable($file)) {
-			$vars['ace_includes'] .= "|" . substr(basename($file), 0, strrpos(basename($file), "."));
-			$dircontent .= file_get_contents($file)."\n\n";
-		}
-	}
-	$compiled = str_replace($dir[0], $dircontent, $compiled);
-}
-
-// Process variable includes
-$includes = NULL;
-preg_match_all("/\#\#\#vars:([^\#]+)\#\#\#/", $compiled, $includes, PREG_SET_ORDER);
-foreach( $includes as $var ) {
-	$compiled = str_replace($var[0], $vars[$var[1]], $compiled);
-}
 
 $compiled = str_replace('IFM_VERSION', IFM_VERSION, $compiled);
 

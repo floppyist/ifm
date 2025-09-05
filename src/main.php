@@ -75,7 +75,7 @@ class IFM {
 
 	private $config = [];
 	private $i18n = [];
-	public $mode = "standalone";
+	public $mode = "" // Set this option to "api" to use IFM without frontend deployment
 	private $initialWD;
 
 	public function __construct($config=[]) {
@@ -121,57 +121,13 @@ class IFM {
 		echo <<<'f00bar'
 			###FRONTEND###
 f00bar;
-
-
-        /*
-		$this->getHTMLHeader();
-		print '<div id="ifm"></div>';
-		$this->getJS();
-		print '<script>var ifm = new IFM(); ifm.init("ifm");</script>';
-		$this->getHTMLFooter();
-         */
-	}
-
-    // TODO: Can be deleted
-	public function getInlineApplication() {
-		$this->getCSS();
-		print '<div id="ifm"></div>';
-		$this->getJS();
-	}
-
-	public function getCSS() {
-		echo <<<'f00bar'
-			###ASSETS_CSS###
-f00bar;
-	}
-
-	public function getJS() {
-		echo <<<'f00bar'
-			###ASSETS_JS###
-f00bar;
-	}
-
-	public function getHTMLHeader() {
-		print '<!DOCTYPE HTML>
-		    <html>
-			<head>
-				<title>IFM - improved file manager</title>
-				<meta charset="utf-8">
-				<meta http-equiv="X-UA-Compatible" content="IE=edge">
-				<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, shrink-to-fit=no">';
-		$this->getCSS();
-		print '</head><body>';
-	}
-
-	public function getHTMLFooter() {
-		print '</body></html>';
 	}
 
 	/**
 	 * main functions
 	 */
 
-	public function run($mode="standalone") {
+	public function run($mode) {
 		try {
 			if (!is_dir(realpath($this->config['root_dir'])) || !is_readable(realpath($this->config['root_dir'])))
 				throw new IFMException("Cannot access root_dir.", false);
@@ -181,10 +137,8 @@ f00bar;
 			$this->mode = $mode;
 			if (isset($_REQUEST['api']) || $mode == "api")
 				$this->jsonResponse($this->dispatch());
-			elseif ($mode == "standalone")
-				$this->getApplication();
 			else
-				$this->getInlineApplication();
+				$this->getApplication();
 		} catch (IFMException $e) {
 			$this->jsonResponse(["status" => "ERROR", "message" => $e->getMessage()]);
 		} catch (Exception $e) {
@@ -202,8 +156,6 @@ f00bar;
 					return ["status" => "ERROR", "message" => "Not authenticated"];
 			case "getConfig":
 				return $this->getConfig();
-			case "getTemplates":
-				return $this->getTemplates();
 			case "getI18N":
 				return $this->getI18N($_REQUEST);
 			case "logout":
@@ -269,69 +221,6 @@ f00bar;
 			return array_merge($this->i18n['en'], $this->i18n[$lang]);
 		else
 			return $this->i18n['en'];
-	}
-
-	private function getTemplates() {
-		// templates
-		$templates = [];
-		$templates['app'] = <<<'f00bar'
-###file:src/templates/app.html###
-f00bar;
-		$templates['login'] = <<<'f00bar'
-###file:src/templates/login.html###
-f00bar;
-		$templates['filetable'] = <<<'f00bar'
-###file:src/templates/filetable.html###
-f00bar;
-		$templates['footer'] = <<<'f00bar'
-###file:src/templates/footer.html###
-f00bar;
-		$templates['task'] = <<<'f00bar'
-###file:src/templates/task.html###
-f00bar;
-		$templates['ajaxrequest'] = <<<'f00bar'
-###file:src/templates/modal.ajaxrequest.html###
-f00bar;
-		$templates['copymove'] = <<<'f00bar'
-###file:src/templates/modal.copymove.html###
-f00bar;
-		$templates['createdir'] = <<<'f00bar'
-###file:src/templates/modal.createdir.html###
-f00bar;
-		$templates['createarchive'] = <<<'f00bar'
-###file:src/templates/modal.createarchive.html###
-f00bar;
-		$templates['deletefile'] = <<<'f00bar'
-###file:src/templates/modal.deletefile.html###
-f00bar;
-		$templates['extractfile'] = <<<'f00bar'
-###file:src/templates/modal.extractfile.html###
-f00bar;
-		$templates['file'] = <<<'f00bar'
-###file:src/templates/modal.file.html###
-f00bar;
-		$templates['file_editoroptions'] = <<<'f00bar'
-###file:src/templates/modal.file_editoroptions.html###
-f00bar;
-		$templates['remoteupload'] = <<<'f00bar'
-###file:src/templates/modal.remoteupload.html###
-f00bar;
-		$templates['renamefile'] = <<<'f00bar'
-###file:src/templates/modal.renamefile.html###
-f00bar;
-		$templates['search'] = <<<'f00bar'
-###file:src/templates/modal.search.html###
-f00bar;
-		$templates['searchresults'] = <<<'f00bar'
-###file:src/templates/modal.searchresults.html###
-f00bar;
-		$templates['uploadfile'] = <<<'f00bar'
-###file:src/templates/modal.uploadfile.html###
-f00bar;
-		$templates['uploadconfirmoverwrite'] = <<<'f00bar'
-###file:src/templates/modal.uploadconfirmoverwrite.html###
-f00bar;
-		return $templates;
 	}
 
 	private function getFiles($dir) {
@@ -427,7 +316,6 @@ f00bar;
 
 	private function getConfig() {
 		$ret = $this->config;
-		$ret['inline'] = ($this->mode == "inline") ? true : false;
 		$ret['isDocroot'] = ($this->getRootDir() == $this->initialWD);
 
 		foreach (["auth_source", "root_dir"] as $field)
