@@ -67,7 +67,7 @@ function handleFileNavigation(file) {
 </script>
 
 <template>
-    <div ref="container" class="max-w-7xl mx-auto h-full overflow-auto scrollbar-hide" @scroll="updateRange">
+    <div ref="container" class="h-full overflow-auto scrollbar-hide" @scroll="updateRange">
         <table class="table-auto w-full text-center">
             <thead class="h-10 sticky top-0 bg-slate-300">
                 <tr>
@@ -97,7 +97,7 @@ function handleFileNavigation(file) {
                     </td>
                     <td 
                         @click="handleFileNavigation(file)"
-                        class="w-75 text-left text-[#337ab7] cursor-pointer hover:underline">
+                        class="text-left text-[#337ab7] cursor-pointer hover:underline">
                         {{ (file.name === '..') ? '[up]' : file.name }}
                     </td>
                     <td>
@@ -105,7 +105,7 @@ function handleFileNavigation(file) {
                             <CloudArrowDownIcon v-if="file.name !== '..'" class="size-4 text-[#337ab7] cursor-pointer" />
                         </div>
                     </td>
-                    <td class="w-25 text-left">{{ file.size }}</td>
+                    <td class="text-left">{{ file.size }}</td>
                     <td>{{ file.fileperms }}</td>
                     <td>{{ file.owner }}</td>
                     <td>{{ file.group }}</td>
@@ -125,7 +125,7 @@ function handleFileNavigation(file) {
 
         <div
             v-show="filesStore.isLoading"
-            class="absolute inset-0 flex items-center justify-center bg-white/75">
+            class="absolute inset-0 flex items-center justify-center">
             <div class="w-12 h-12 border-4 border-[#337ab7] border-dashed rounded-full animate-spin"></div>
         </div>
     </div>
