@@ -66,11 +66,7 @@ function handleFileNavigation(file) {
 </script>
 
 <template>
-    <div v-show="filesStore.isLoading" class="flex items-center justify-center h-full">
-        <div class="w-12 h-12 border-4 border-[#337ab7] border-dashed rounded-full animate-spin"></div>
-    </div>
-
-    <div ref="container" class="max-w-7xl mx-auto h-full overflow-auto scrollbar-hide" v-show="!filesStore.isLoading" @scroll="updateRange">
+    <div ref="container" class="max-w-7xl mx-auto h-full overflow-auto scrollbar-hide" @scroll="updateRange">
         <table class="table-auto w-full text-center">
             <thead class="h-10 sticky top-0 bg-slate-300">
                 <tr>
@@ -84,7 +80,7 @@ function handleFileNavigation(file) {
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody v-show="!filesStore.isLoading">
                 <!-- Top spacer for infinite scroll -->
                 <tr style="height: 0" :style="{ height: topSpacer + 'px' }"></tr>
 
@@ -124,6 +120,12 @@ function handleFileNavigation(file) {
                 <tr style="height: 0" :style="{ height: bottomSpacer + 'px' }"></tr>
             </tbody>
         </table>
+
+        <div
+            v-show="filesStore.isLoading"
+            class="absolute inset-0 flex items-center justify-center bg-white/75">
+            <div class="w-12 h-12 border-4 border-[#337ab7] border-dashed rounded-full animate-spin"></div>
+        </div>
     </div>
 </template>
 
