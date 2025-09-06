@@ -873,7 +873,10 @@ f00bar;
 
 			throw new IFMException($this->l('json_encode_error')." ".$err);
 		} else {
-			header("Content-Type: application/json");
+            if (!headers_sent()) {
+			    header("Content-Type: application/json");
+            }
+
 			echo $json;
 		}
 	}
@@ -881,7 +884,7 @@ f00bar;
 	private function convertToUTF8(&$item) {
 		if (is_array($item)) {
 			array_walk($item, [$this, 'convertToUTF8']);
-		} else {
+		} elseif (is_string($item)) {
 			if (function_exists("mb_check_encoding") && !mb_check_encoding($item, "UTF-8")) {
 				$item = mb_convert_encoding($item, "UTF-8", mb_detect_encoding($item));
 			}

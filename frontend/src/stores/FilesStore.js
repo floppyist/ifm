@@ -40,6 +40,28 @@ export const useFilesStore = defineStore('files', () => {
         }
     };
 
+    const downloadFile = async (file) => {
+        const params = new URLSearchParams();
+        params.append('api', 'download');
+        params.append('dir', currentPath);
+        params.append('filename', file.name);
+
+        try {
+            const res = await axios.post(window.location.href, params);
+            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const link = document.createElement('a');
+
+            link.href = url;
+            link.download = file.name;
+            link.click();
+            link.remove();
+
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     const setSearch = (query) => {
         search.value = query;
     };
@@ -61,6 +83,7 @@ export const useFilesStore = defineStore('files', () => {
         getFiles,
         setSearch,
         createDir,
+        downloadFile,
     };
 });
 

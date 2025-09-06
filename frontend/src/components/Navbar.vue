@@ -36,7 +36,10 @@ function updateSearch() {
             </div>
 
             <div class="flex flex-wrap items-center gap-3">
-                <ArrowPathIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
+                <ArrowPathIcon 
+                    @click="filesStore.getFiles(filesStore.currentPath)" 
+                    class="size-5 cursor-pointer hover:text-[#337ab7]" />
+
                 <ArrowDownTrayIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
                 <DocumentPlusIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
                 <FolderPlusIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />

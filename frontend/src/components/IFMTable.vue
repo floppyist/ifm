@@ -102,7 +102,10 @@ function handleFileNavigation(file) {
                     </td>
                     <td>
                         <div class="flex justify-center items-center">
-                            <CloudArrowDownIcon v-if="file.name !== '..'" class="size-4 text-[#337ab7] cursor-pointer" />
+                            <CloudArrowDownIcon 
+                                @click="filesStore.downloadFile(file)"
+                                v-if="file.name !== '..'" 
+                                class="size-4 text-[#337ab7] cursor-pointer" />
                         </div>
                     </td>
                     <td class="text-left">{{ file.size }}</td>
