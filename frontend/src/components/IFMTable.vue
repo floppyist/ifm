@@ -20,7 +20,7 @@ const filesStore = useFilesStore();
 
 const container = ref(null);
 const rowHeight = 40;
-const buffer = 100;
+const buffer = 5;
 
 const from = ref(0);
 const to = ref(0);

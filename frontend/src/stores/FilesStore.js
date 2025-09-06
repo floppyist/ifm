@@ -12,7 +12,7 @@ export const useFilesStore = defineStore('files', () => {
         }),
     });
 
-    const currentPath = ref("");
+    const currentPath = ref('');
     const search = ref('');
     const isLoading = ref(false);
 
@@ -54,26 +54,31 @@ export const useFilesStore = defineStore('files', () => {
         }
     };
 
-    const downloadFile = async (file) => {
-        const params = new URLSearchParams();
-        params.append('api', 'download');
-        params.append('dir', currentPath.value);
-        params.append('filename', file.name);
-
-        try {
-            const res = await axios.post(window.location.href, params);
-            const url = window.URL.createObjectURL(new Blob([res.data]));
-            const link = document.createElement('a');
-
-            link.href = url;
-            link.download = file.name;
-            link.click();
-            link.remove();
-
-            window.URL.revokeObjectURL(url);
-        } catch (err) {
-            console.log(err);
+    const downloadFile = (file) => {
+        const params = {
+            api: 'download',
+            dir: currentPath.value,
+            filename: file.name,
         }
+
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = window.location.href;
+        form.style.display = 'none';
+
+        for (const key in params) {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = key;
+            input.value = params[key];
+
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+
+        form.submit();
+        form.remove();
     }
 
     const setSearch = (query) => {
@@ -91,7 +96,6 @@ export const useFilesStore = defineStore('files', () => {
         isLoading,
         getFiles,
         setSearch,
-        createDir,
         downloadFile,
     };
 });
