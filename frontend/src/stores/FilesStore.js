@@ -43,7 +43,7 @@ export const useFilesStore = defineStore('files', () => {
     const downloadFile = async (file) => {
         const params = new URLSearchParams();
         params.append('api', 'download');
-        params.append('dir', currentPath);
+        params.append('dir', currentPath.value);
         params.append('filename', file.name);
 
         try {
