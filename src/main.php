@@ -459,9 +459,11 @@ f00bar;
 			throw new IFMException($this->l('invalid_dir'));
 
 		if (@mkdir($d['dirname']))
-			return ["status" => "OK", "message" => $this->l('folder_create_success')];
+			return ["status" => "OK", "message" => $this->l('folder_create_success'), "fileData" => $this->getItemInformation($d['dirname'])];
 		else
 			throw new IFMException($this->l('folder_create_error').". ".error_get_last()['message']);
+
+            return ["status" => "ERROR", "message" => $this->l('folder_create_error')];
 	}
 
 	// save a file

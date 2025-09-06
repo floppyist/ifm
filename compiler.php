@@ -89,6 +89,15 @@ $compiled = join($compiled);
 // Frontend include
 $compiled = str_replace("###FRONTEND###", file_get_contents("frontend/dist/index.html"), $compiled);
 
+
+$includes = NULL;
+
+preg_match_all("/\#\#\#vars:([^\#]+)\#\#\#/", $compiled, $includes, PREG_SET_ORDER);
+
+foreach( $includes as $var ) {
+	$compiled = str_replace($var[0], $vars[$var[1]], $compiled);
+}
+
 $compiled = str_replace('IFM_VERSION', IFM_VERSION, $compiled);
 
 if (!is_dir(IFM_RELEASE_DIR)) {

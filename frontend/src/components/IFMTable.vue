@@ -32,7 +32,7 @@ onMounted(async () => {
 });
 
 function updateRange() {
-    if (!container.value || !filesStore.filesData) return;
+    if (!container.value || !filesStore.state.files) return;
 
     const start = Math.max(0, Math.floor(container.value.scrollTop / rowHeight) - buffer * 2);
     const end = start + Math.ceil(container.value.clientHeight / rowHeight) + buffer * 2;
@@ -44,9 +44,9 @@ function updateRange() {
 const topSpacer = computed(() => from.value * rowHeight);
 
 const bottomSpacer = computed(() => {
-    if (!filesStore.filesData) return 0;
+    if (!filesStore.state.files) return 0;
 
-    return Math.max(0, (filesStore.filteredFilesData.length - to.value) * rowHeight);
+    return Math.max(0, (filesStore.state.filteredFiles.length - to.value) * rowHeight);
 });
 
 function handleFileNavigation(file) {
@@ -85,7 +85,7 @@ function handleFileNavigation(file) {
                 <!-- Top spacer for infinite scroll -->
                 <tr style="height: 0" :style="{ height: topSpacer + 'px' }"></tr>
 
-                <tr v-for="file in filesStore.filteredFilesData.slice(from, to)" :key="file.name" 
+                <tr v-for="file in filesStore.state.filteredFiles.slice(from, to)" :key="file.name" 
                     class="hover:bg-[#add8e6]" 
                     :style="{ height: rowHeight + 'px' }">
                     <td>

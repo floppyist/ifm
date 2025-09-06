@@ -1,11 +1,17 @@
-import { ref, computed, watch } from 'vue';
+import { reactive, ref, computed, watch } from 'vue';
 
 import { defineStore } from 'pinia';
 
 import axios from 'axios';
 
 export const useFilesStore = defineStore('files', () => {
-    const filesData = ref([]);
+    const state = reactive({
+        files: [],
+        filteredFiles: computed(() => {
+            return state.files.filter(f => f.name.includes(search.value));
+        }),
+    });
+
     const currentPath = ref("");
     const search = ref('');
     const isLoading = ref(false);
@@ -19,7 +25,7 @@ export const useFilesStore = defineStore('files', () => {
 
         try {
             const res = await axios.post(window.location.href, params);
-            filesData.value = res.data;
+            state.files = res.data;
         } catch (err) {
             console.log(err);
         }
@@ -27,14 +33,22 @@ export const useFilesStore = defineStore('files', () => {
         isLoading.value = false;
     };
 
-    const createDir = async (dir, dirname) => {
+    const createDir = async (dirname) => {
         const params = new URLSearchParams();
         params.append('api', 'createDir');
-        params.append('dir', dir);
+        params.append('dir', currentPath.value);
         params.append('dirname', dirname);
 
         try {
-            await axios.post(window.location.href, params);
+            const res = await axios.post(window.location.href, params);
+
+            console.log(res);
+            if (res.data.status === 'ERROR') {
+                // TODO: Create store for messages like this
+                console.log(res.data.message);
+            } else {
+                state.files.push(res.data.fileData);
+            }
         } catch (err) {
             console.log(err);
         }
@@ -66,17 +80,12 @@ export const useFilesStore = defineStore('files', () => {
         search.value = query;
     };
 
-    const filteredFilesData = computed(() => {
-        return filesData.value.filter(f => f.name.includes(search.value));
-    });
-
     watch(currentPath, (newPath) => {
         getFiles(newPath);
     });
 
     return {
-        filesData,
-        filteredFilesData,
+        state,
         currentPath,
         search,
         isLoading,
