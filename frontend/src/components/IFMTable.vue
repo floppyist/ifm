@@ -77,10 +77,10 @@ watch(() => filesStore.search, () => {
             <div class="w-8"></div>
             <div class="flex-1">Filename</div>
             <div class="w-8"></div>
-            <div class="w-24 text-left">Size</div>
-            <div class="w-32 text-center">Permissions</div>
-            <div class="w-24 text-center">Owner</div>
-            <div class="w-24 text-center">Group</div>
+            <div class="w-24">Size</div>
+            <div class="w-32 justify-center hidden md:flex">Permissions</div>
+            <div class="w-24 justify-center hidden lg:flex">Owner</div>
+            <div class="w-24 justify-center hidden xl:flex">Group</div>
             <div class="w-8"></div>
         </div>
 
@@ -92,11 +92,15 @@ watch(() => filesStore.search, () => {
             <!-- Visible rows -->
             <div v-for="file in visibleFiles" :key="file.name" 
                 class="flex border-b border-gray-200 h-[50px] items-center px-2 hover:bg-[#add8e6]">
+
+                <!-- File icon -->
                 <div class="w-8 flex justify-center">
                     <DocumentIcon v-if="file.type === 'file'" class="size-5 text-[#337ab7]" />
                     <FolderIcon v-if="file.type === 'dir' && file.name !== '..'" class="size-5 text-[#337ab7]" />
                     <ChevronDoubleUpIcon v-if="file.name === '..'" class="size-5 text-[#337ab7]" />
                 </div>
+
+                <!-- Filename -->
                 <div class="flex-1 min-w-[75px] truncate">
                     <span
                         @click="handleFileNavigation(file)" 
@@ -104,15 +108,27 @@ watch(() => filesStore.search, () => {
                         {{ (file.name === '..' ? '[up]' : file.name )}}
                     </span>
                 </div>
+
+                <!-- Download button -->
                 <div class="w-10">
                     <CloudArrowDownIcon 
                         @click="filesStore.downloadFile(file)"
                         class="size-6 text-[#337ab7] cursor-pointer" />
                 </div>
+
+                <!-- File size -->
                 <div class="w-24 text-left truncate">{{ file.size }}</div>
-                <div class="w-32 text-center truncate">{{ file.fileperms }}</div>
-                <div class="w-24 text-center truncate">{{ file.owner }}</div>
-                <div class="w-24 text-center truncate">{{ file.group }}</div>
+
+                <!-- File permissions -->
+                <div class="w-32 justify-center truncate hidden md:flex">{{ file.fileperms }}</div>
+
+                <!-- File owner -->
+                <div class="w-24 justify-center truncate hidden lg:flex">{{ file.owner }}</div>
+
+                <!-- File group -->
+                <div class="w-24 justify-center truncate hidden xl:flex">{{ file.group }}</div>
+
+                <!-- Actions -->
                 <div class="w-8"> 
                     <EllipsisVerticalIcon class="size-6 cursor-pointer text-[#337ab7]" />
                 </div>
