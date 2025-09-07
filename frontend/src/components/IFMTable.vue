@@ -77,10 +77,10 @@ watch(() => filesStore.search, () => {
             <div class="w-8"></div>
             <div class="flex-1">Filename</div>
             <div class="w-8"></div>
-            <div class="w-24">Size</div>
-            <div class="w-32 justify-center hidden md:flex">Permissions</div>
-            <div class="w-24 justify-center hidden lg:flex">Owner</div>
-            <div class="w-24 justify-center hidden xl:flex">Group</div>
+            <div class="w-24 text-left">Size</div>
+            <div class="w-32 justify-center hidden sm:flex">Permissions</div>
+            <div class="w-24 justify-center hidden md:flex">Owner</div>
+            <div class="w-24 justify-center hidden lg:flex">Group</div>
             <div class="w-8"></div>
         </div>
 
@@ -120,13 +120,13 @@ watch(() => filesStore.search, () => {
                 <div class="w-24 text-left truncate">{{ file.size }}</div>
 
                 <!-- File permissions -->
-                <div class="w-32 justify-center truncate hidden md:flex">{{ file.fileperms }}</div>
+                <div class="w-32 justify-center truncate hidden sm:flex">{{ file.fileperms }}</div>
 
                 <!-- File owner -->
-                <div class="w-24 justify-center truncate hidden lg:flex">{{ file.owner }}</div>
+                <div class="w-24 justify-center truncate hidden md:flex">{{ file.owner }}</div>
 
                 <!-- File group -->
-                <div class="w-24 justify-center truncate hidden xl:flex">{{ file.group }}</div>
+                <div class="w-24 justify-center truncate hidden lg:flex">{{ file.group }}</div>
 
                 <!-- Actions -->
                 <div class="w-8"> 

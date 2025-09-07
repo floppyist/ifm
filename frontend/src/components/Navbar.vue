@@ -21,29 +21,29 @@ function updateSearch() {
 </script>
 
 <template>
-    <nav class="sticky bg-slate-600 text-slate-200">
-        <div class="flex flex-wrap justify-between p-3 items-center gap-3">
-            <div class="flex items-center gap-3">
-                <div class="text-2xl font-bold">
+    <nav class="sticky bg-slate-700 text-slate-300">
+        <div class="flex justify-between p-3 items-center gap-3">
+            <div class="flex w-full items-center gap-3">
+                <div class="text-3xl font-semibold text-blue-200 bg-slate-600 rounded-lg px-3">
                     <p>IFM</p>
                 </div>
 
                 <input 
                     v-model="search" 
                     @input="updateSearch" 
-                    class="bg-white text-[#222222] pl-1 focus:outline-none rounded-sm" 
+                    class="w-full bg-slate-600 text-white text-semibold text-lg px-3 py-1 focus:outline-none rounded-lg" 
                     placeholder="Search..">
             </div>
 
-            <div class="flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-3 bg-slate-600 rounded-lg px-3 py-2">
                 <ArrowPathIcon 
                     @click="filesStore.getFiles(filesStore.currentPath)" 
-                    class="size-5 cursor-pointer hover:text-[#337ab7]" />
+                    class="size-5 cursor-pointer hover:text-blue-200" />
 
-                <ArrowDownTrayIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
-                <DocumentPlusIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
-                <FolderPlusIcon class="size-5 cursor-pointer hover:text-[#337ab7]" />
-                <Bars3Icon class="size-5 cursor-pointer hover:text-[#337ab7]" />
+                <ArrowDownTrayIcon class="size-5 cursor-pointer hover:text-blue-200" />
+                <DocumentPlusIcon class="size-5 cursor-pointer hover:text-blue-200" />
+                <FolderPlusIcon class="size-5 cursor-pointer hover:text-blue-200" />
+                <Bars3Icon class="size-5 cursor-pointer hover:text-blue-200" />
             </div>
         </div>
     </nav>
