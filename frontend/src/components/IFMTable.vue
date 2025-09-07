@@ -65,7 +65,7 @@ function handleFileNavigation(file) {
 };
 
 function toggleFileSelection(file, event) {
-    if (event.ctrlKey) {
+    if (event.ctrlKey || event.type === 'dblclick') {
         if (filesStore.selectedFiles.has(file)) {
             filesStore.selectedFiles.delete(file);
         } else {
@@ -73,14 +73,6 @@ function toggleFileSelection(file, event) {
         }
     }
 };
-
-function toggleFileSelectionTap(file) {
-if (filesStore.selectedFiles.has(file)) {
-            filesStore.selectedFiles.delete(file);
-        } else {
-            filesStore.selectedFiles.add(file);
-        }
-}
 
 watch(() => filesStore.search, () => {
     // NOTE: A bit hacky, but prevents longer filtering of elements (search) if the user has previously scrolled to the end
@@ -112,7 +104,7 @@ watch(() => filesStore.search, () => {
                 class="flex border-b border-gray-300 h-[50px] items-center hover:bg-[#add8e6]"
                 :class="{ 'bg-green-100': filesStore.selectedFiles.has(file)}"
                 @click="toggleFileSelection(file, $event);"
-                @dblclick="toggleFileSelectionTap(file);">
+                @dblclick="toggleFileSelection(file, $event);">
 
                 <!-- File icon -->
                 <div class="w-10 flex justify-center">
