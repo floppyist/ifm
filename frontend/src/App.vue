@@ -8,7 +8,7 @@ import Footer from '@/components/Footer.vue';
     <main class="flex flex-col h-screen bg-white max-w-7xl mx-auto">
         <Navbar />
 
-        <div class="flex-auto overflow-y-auto overflow-x-hidden">
+        <div class="flex-auto overflow-x-hidden">
             <IFMTable></IFMTable>
         </div>
 
