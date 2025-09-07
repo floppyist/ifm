@@ -65,12 +65,16 @@ export const useFilesStore = defineStore('files', () => {
     };
 
     function downloadFile(file) {
-        const params = {
-            api: 'download',
-            dir: currentPath.value,
-            filename: file.name,
-        }
+        let params = {};
 
+        switch (file.type) {
+            case 'file':
+                params = { api: 'download', dir: currentPath.value, filename: file.name };
+            case 'dir':
+                params = { api: 'zipnload', dir: currentPath.value, filename: file.name };
+                
+        }
+        
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = window.location.href;
