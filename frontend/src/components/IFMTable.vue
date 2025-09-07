@@ -74,6 +74,14 @@ function toggleFileSelection(file, event) {
     }
 };
 
+function toggleFileSelectionTap(file) {
+if (filesStore.selectedFiles.has(file)) {
+            filesStore.selectedFiles.delete(file);
+        } else {
+            filesStore.selectedFiles.add(file);
+        }
+}
+
 watch(() => filesStore.search, () => {
     // NOTE: A bit hacky, but prevents longer filtering of elements (search) if the user has previously scrolled to the end
     if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
@@ -103,7 +111,8 @@ watch(() => filesStore.search, () => {
             <div v-for="file in visibleFiles" :key="file.name" 
                 class="flex border-b border-gray-300 h-[50px] items-center hover:bg-[#add8e6]"
                 :class="{ 'bg-green-100': filesStore.selectedFiles.has(file)}"
-                @click="toggleFileSelection(file, $event);">
+                @click="toggleFileSelection(file, $event);"
+                @dblclick="toggleFileSelectionTap(file);">
 
                 <!-- File icon -->
                 <div class="w-10 flex justify-center">
@@ -113,10 +122,10 @@ watch(() => filesStore.search, () => {
                 </div>
 
                 <!-- Filename -->
-                <div class="flex flex-1 items-center h-full min-w-[75px] truncate">
+                <div class="flex flex-1 items-center h-full min-w-[75px] truncate select-none">
                     <span
                         @click.stop="handleFileNavigation(file)" 
-                        class="truncate text-[#337ab7] cursor-pointer hover:underline">
+                        class="truncate text-[#337ab7] cursor-pointer hover:underline select-text">
                         {{ (file.name === '..' ? '[up]' : file.name )}}
                     </span>
                 </div>
