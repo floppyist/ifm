@@ -71,13 +71,13 @@ watch(() => filesStore.search, () => {
 </script>
 
 <template>
-    <div class="h-full flex flex-col">
+    <div class="h-full flex flex-col bg-slate-200">
         <!-- Header -->
-        <div class="flex border-b border-gray-300 bg-gray-100 h-[50px] items-center px-2 font-semibold">
-            <div class="w-8"></div>
+        <div class="flex border-b border-gray-300 bg-slate-300 text-gray-700 h-[50px] items-center text-xl">
+            <div class="w-10"></div>
             <div class="flex-1">Filename</div>
-            <div class="w-8"></div>
-            <div class="w-24 text-left">Size</div>
+            <div class="w-10"></div>
+            <div class="w-24">Size</div>
             <div class="w-32 justify-center hidden sm:flex">Permissions</div>
             <div class="w-24 justify-center hidden md:flex">Owner</div>
             <div class="w-24 justify-center hidden lg:flex">Group</div>
@@ -91,10 +91,10 @@ watch(() => filesStore.search, () => {
 
             <!-- Visible rows -->
             <div v-for="file in visibleFiles" :key="file.name" 
-                class="flex border-b border-gray-200 h-[50px] items-center px-2 hover:bg-[#add8e6]">
+                class="flex border-b border-gray-300 h-[50px] items-center hover:bg-[#add8e6]">
 
                 <!-- File icon -->
-                <div class="w-8 flex justify-center">
+                <div class="w-10 flex justify-center">
                     <DocumentIcon v-if="file.type === 'file'" class="size-5 text-[#337ab7]" />
                     <FolderIcon v-if="file.type === 'dir' && file.name !== '..'" class="size-5 text-[#337ab7]" />
                     <ChevronDoubleUpIcon v-if="file.name === '..'" class="size-5 text-[#337ab7]" />
@@ -110,7 +110,7 @@ watch(() => filesStore.search, () => {
                 </div>
 
                 <!-- Download button -->
-                <div class="w-10">
+                <div class="flex w-10 justify-center">
                     <CloudArrowDownIcon 
                         @click="filesStore.downloadFile(file)"
                         class="size-6 text-[#337ab7] cursor-pointer" />
