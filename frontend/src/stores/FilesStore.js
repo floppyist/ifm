@@ -7,6 +7,7 @@ import axios from 'axios';
 export const useFilesStore = defineStore('files', () => {
     // --- State ---
     const files = ref([]);
+    const selectedFiles = ref(new Set());
     const currentPath = ref('');
     const search = ref('');
     const isLoading = ref(false);
@@ -64,13 +65,11 @@ export const useFilesStore = defineStore('files', () => {
         }
     };
 
-    function downloadFile(file) {
-        isLoading.value = true;        
-
+    async function downloadFile(files) {
         let params = {};
 
-        if (file.type === 'file') params = { api: 'download', dir: currentPath.value, filename: file.name };
-        if (file.type === 'dir') params = { api: 'zipnload', dir: currentPath.value, filename: file.name };
+        if (files.type === 'file') params = { api: 'download', dir: currentPath.value, filename: files.name };
+        if (files.type === 'dir') params = { api: 'zipnload', dir: currentPath.value, filename: files.name };
 
         const form = document.createElement('form');
         form.method = 'POST';
@@ -90,13 +89,12 @@ export const useFilesStore = defineStore('files', () => {
 
         form.submit();
         form.remove();
-
-        isLoading.value = false;
     }
 
     return {
         // State
         files,
+        selectedFiles,
         currentPath,
         search,
         isLoading,
