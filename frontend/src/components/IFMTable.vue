@@ -97,17 +97,16 @@ watch(() => filesStore.search, () => {
                     <FolderIcon v-if="file.type === 'dir' && file.name !== '..'" class="size-5 text-[#337ab7]" />
                     <ChevronDoubleUpIcon v-if="file.name === '..'" class="size-5 text-[#337ab7]" />
                 </div>
-                <div class="flex-1">
+                <div class="flex-1 min-w-[75px] truncate">
                     <span
                         @click="handleFileNavigation(file)" 
-                        class="truncate text-[#337ab7] cursor-pointer hover:underline">
+                        class="flex-1 truncate text-[#337ab7] cursor-pointer hover:underline">
                         {{ (file.name === '..' ? '[up]' : file.name )}}
                     </span>
                 </div>
-                <div class="w-10 flex justify-center">
+                <div class="w-10">
                     <CloudArrowDownIcon 
                         @click="filesStore.downloadFile(file)"
-                        v-if="file.name !== '..'" 
                         class="size-6 text-[#337ab7] cursor-pointer" />
                 </div>
                 <div class="w-24 text-left truncate">{{ file.size }}</div>
