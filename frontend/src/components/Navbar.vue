@@ -24,7 +24,8 @@ function updateSearch() {
     <nav class="sticky bg-slate-700 text-slate-300">
         <div class="flex justify-between p-3 items-center gap-3">
             <div class="flex w-full items-center gap-3">
-                <div class="text-3xl font-semibold text-blue-200 bg-slate-600 rounded-lg px-3">
+                <div @click="filesStore.getFiles()"
+                    class="text-3xl font-semibold text-blue-200 bg-slate-600 rounded-lg px-3 cursor-pointer">
                     <p>IFM</p>
                 </div>
 

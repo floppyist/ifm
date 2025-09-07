@@ -91,6 +91,21 @@ export const useFilesStore = defineStore('files', () => {
         form.remove();
     }
 
+    async function getFileContent(file) {
+        const params = new URLSearchParams();
+        params.append('api', 'getContent');
+        params.append('dir', '');
+        params.append('filename', file.name);
+
+        try {
+            const res = await axios.post(window.location.href, params);
+
+            console.log(res.data);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     return {
         // State
         files,
@@ -106,6 +121,7 @@ export const useFilesStore = defineStore('files', () => {
         setSearch,
         createDir,
         downloadFile,
+        getFileContent,
     };
 });
 

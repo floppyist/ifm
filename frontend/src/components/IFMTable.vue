@@ -5,15 +5,12 @@ import { useFilesStore } from '@/stores/FilesStore.js';
 import {
     DocumentIcon,
     FolderIcon,
+    CloudArrowDownIcon,
 } from '@heroicons/vue/24/outline';
 
 import {
-    CloudArrowDownIcon,
-    PencilSquareIcon,
-    CodeBracketIcon,
-    TrashIcon,
     ChevronDoubleUpIcon,
-    EllipsisVerticalIcon,
+    EllipsisHorizontalIcon,
 } from '@heroicons/vue/24/solid';
 
 const filesStore = useFilesStore();
@@ -60,6 +57,10 @@ function handleFileNavigation(file) {
                     filesStore.changePath(filesStore.currentPath + '/' + file.name);
                 }
             }
+        case 'file':
+            // TODO: Not finished yet; just for testing
+            filesStore.getFileContent(file);
+
         default: break;
     }
 };
@@ -91,7 +92,7 @@ watch(() => filesStore.search, () => {
             <div class="w-32 justify-center hidden sm:flex">Permissions</div>
             <div class="w-24 justify-center hidden md:flex">Owner</div>
             <div class="w-24 justify-center hidden lg:flex">Group</div>
-            <div class="w-8"></div>
+            <div class="w-10"></div>
         </div>
 
         <!-- Body -->
@@ -124,7 +125,7 @@ watch(() => filesStore.search, () => {
 
                 <!-- Download button -->
                 <div class="flex w-10 justify-center">
-                    <CloudArrowDownIcon 
+                    <CloudArrowDownIcon
                         @click="filesStore.downloadFile(file)"
                         class="size-6 text-[#337ab7] cursor-pointer" />
                 </div>
@@ -142,8 +143,8 @@ watch(() => filesStore.search, () => {
                 <div class="w-24 justify-center truncate hidden lg:flex">{{ file.group }}</div>
 
                 <!-- Actions -->
-                <div class="w-8"> 
-                    <EllipsisVerticalIcon class="size-6 cursor-pointer text-[#337ab7]" />
+                <div class="w-10 flex text-center"> 
+                    <EllipsisHorizontalIcon class="size-6 rounded-full bg-slate-300 cursor-pointer text-[#337ab7]" />
                 </div>
             </div>
 
