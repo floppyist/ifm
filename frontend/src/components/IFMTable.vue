@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 
 import { useFilesStore } from '@/stores/FilesStore.js';
 
@@ -21,7 +21,6 @@ const filesStore = useFilesStore();
 const container = ref(null);
 const rowHeight = 40;
 const buffer = 5;
-
 const from = ref(0);
 const to = ref(0);
 
@@ -32,7 +31,7 @@ onMounted(async () => {
 });
 
 function updateRange() {
-    if (!container.value || !filesStore.state.files) return;
+    if (!container.value || !filesStore.files) return;
 
     const start = Math.max(0, Math.floor(container.value.scrollTop / rowHeight) - buffer * 2);
     const end = start + Math.ceil(container.value.clientHeight / rowHeight) + buffer * 2;
@@ -44,21 +43,26 @@ function updateRange() {
 const topSpacer = computed(() => from.value * rowHeight);
 
 const bottomSpacer = computed(() => {
-    if (!filesStore.state.files) return 0;
+    if (!filesStore.files) return 0;
 
-    return Math.max(0, (filesStore.state.filteredFiles.length - to.value) * rowHeight);
+    return Math.max(0, (filesStore.filteredFiles.length - to.value) * rowHeight);
 });
+
+watch(() => filesStore.search, () => {
+    // FIX: A bit hacky but prevents longer filtering times if scrolled to bottom because of DOM manipulation
+    if (container.value) container.value.scrollTop = 0;
+})
 
 function handleFileNavigation(file) {
     switch (file.type) {
         case 'dir':
             if (file.name === '..') {
-                filesStore.currentPath = filesStore.currentPath.substring(0, filesStore.currentPath.lastIndexOf('/'));
+                filesStore.changePath(filesStore.currentPath.substring(0, filesStore.currentPath.lastIndexOf('/')));
             } else {
                 if (filesStore.currentPath === '') {
-                    filesStore.currentPath = file.name;
+                    filesStore.changePath(file.name);
                 } else {
-                    filesStore.currentPath += '/' + file.name;
+                    filesStore.changePath(filesStore.currentPath + '/' + file.name);
                 }
             }
         default: break;
@@ -85,7 +89,7 @@ function handleFileNavigation(file) {
                 <!-- Top spacer for infinite scroll -->
                 <tr style="height: 0" :style="{ height: topSpacer + 'px' }"></tr>
 
-                <tr v-for="file in filesStore.state.filteredFiles.slice(from, to)" :key="file.name" 
+                <tr v-for="file in filesStore.filteredFiles.slice(from, to)" :key="file.name" 
                     class="hover:bg-[#add8e6]" 
                     :style="{ height: rowHeight + 'px' }">
                     <td>

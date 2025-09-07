@@ -1,22 +1,23 @@
-import { reactive, ref, computed, watch } from 'vue';
+import { reactive, ref, computed } from 'vue';
 
 import { defineStore } from 'pinia';
 
 import axios from 'axios';
 
 export const useFilesStore = defineStore('files', () => {
-    const state = reactive({
-        files: [],
-        filteredFiles: computed(() => {
-            return state.files.filter(f => f.name.includes(search.value));
-        }),
-    });
-
+    // --- State ---
+    const files = ref([]);
     const currentPath = ref('');
     const search = ref('');
     const isLoading = ref(false);
 
-    const getFiles = async (dir) => {
+    // --- Getters ---
+    const filteredFiles = computed(() => {
+        return files.value.filter(f => f.name.toLowerCase().includes(search.value));
+    })
+
+    // --- Actions ---
+    async function getFiles(dir = '') {
         isLoading.value = true;
 
         const params = new URLSearchParams();
@@ -25,15 +26,26 @@ export const useFilesStore = defineStore('files', () => {
 
         try {
             const res = await axios.post(window.location.href, params);
-            state.files = res.data;
+
+            files.value = res.data.map(f => reactive(f));
+            currentPath.value = dir;
         } catch (err) {
             console.log(err);
+        } finally {
+            isLoading.value = false;
         }
-
-        isLoading.value = false;
     };
 
-    const createDir = async (dirname) => {
+    async function changePath(dir) {
+        currentPath.value = dir;
+        await getFiles(dir);
+    };
+
+    function setSearch(query) {
+        search.value = query;
+    };
+
+    async function createDir(dirname) {
         const params = new URLSearchParams();
         params.append('api', 'createDir');
         params.append('dir', currentPath.value);
@@ -42,19 +54,17 @@ export const useFilesStore = defineStore('files', () => {
         try {
             const res = await axios.post(window.location.href, params);
 
-            console.log(res);
-            if (res.data.status === 'ERROR') {
-                // TODO: Create store for messages like this
-                console.log(res.data.message);
+            if (res.data.status === 'OK') {
+                files.value.push(res.data.fileData);
             } else {
-                state.files.push(res.data.fileData);
+                console.warn(res.data.message);
             }
         } catch (err) {
             console.log(err);
         }
     };
 
-    const downloadFile = (file) => {
+    function downloadFile(file) {
         const params = {
             api: 'download',
             dir: currentPath.value,
@@ -81,21 +91,19 @@ export const useFilesStore = defineStore('files', () => {
         form.remove();
     }
 
-    const setSearch = (query) => {
-        search.value = query;
-    };
-
-    watch(currentPath, (newPath) => {
-        getFiles(newPath);
-    });
-
     return {
-        state,
+        // State
+        files,
         currentPath,
         search,
         isLoading,
+        // Getters
+        filteredFiles,
+        // Actions
         getFiles,
+        changePath,
         setSearch,
+        createDir,
         downloadFile,
     };
 });
