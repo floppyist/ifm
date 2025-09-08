@@ -13,15 +13,18 @@ export const useWorkerStore = defineStore('worker', () => {
 
             worker.onmessage = (e) => {
                 if (e.data.error) reject(e.data.error);
-                else if (e.data.files) resolve(e.data.files);
+                else if (e.data.payload) resolve(e.data.payload);
 
                 worker.terminate();
+
                 tasks.value = tasks.value.filter(t => t.id !== taskId);
             };
 
             worker.onerror = (err) => {
                 reject(err.message);
+
                 worker.terminate();
+
                 tasks.value = tasks.value.filter(t => t.id !== taskId);
             };
 

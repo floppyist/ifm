@@ -3,7 +3,8 @@ import { defineStore } from 'pinia';
 import { useWorkerStore } from './WorkerStore';
 
 import fileLoader from '@/workers/fileLoader.js?raw';
-import axios from 'axios';
+import contentLoader from '@/workers/contentLoader.js?raw';
+import dirCreationWorker from '@/workers/dirCreationWorker.js?raw';
 
 export const useFilesStore = defineStore('files', () => {
     // --- State ---
@@ -18,7 +19,7 @@ export const useFilesStore = defineStore('files', () => {
     // --- Getters ---
     const filteredFiles = computed(() => {
         return files.value.filter(f => f.name.toLowerCase().includes(search.value));
-    })
+    });
 
     // --- Actions ---
     async function getFiles(dir = '') {
@@ -28,42 +29,69 @@ export const useFilesStore = defineStore('files', () => {
         const workerURL = URL.createObjectURL(blob);
 
         try {
-            const result = await workerStore.executeTask(workerURL, { dir, url: window.location.href });
-            files.value = result;
+            const res = await workerStore.executeTask(workerURL, { 
+                dir, 
+                url: window.location.href 
+            });
+
+            files.value = res;
             currentPath.value = dir;
         } catch (err) {
             console.error('Worker error:', err);
+        } finally {
+            isLoading.value = false;
         }
-
-        isLoading.value = false;
     };
 
+    async function getFileContent(file) {
+        if (file.name === '..' || file.type === 'dir') return null;
 
-    async function changePath(dir) {
-        currentPath.value = dir;
-        await getFiles(dir);
-    };
+        isLoading.value = true;
 
-    function setSearch(query) {
-        search.value = query;
+        const blob = new Blob([contentLoader], { type: 'application/javascript'} );
+        const workerURL = URL.createObjectURL(blob);
+
+        try {
+            const res = await workerStore.executeTask(workerURL, {
+                dir: currentPath.value,
+                filename: file.name,
+                url: window.location.href,
+            });
+
+            if (res.status === 'OK') {
+                return res.data.content;
+            } else {
+                console.warn(res.message);
+            }
+        } catch (err) {
+            console.error('Worker error:', err);
+        } finally {
+            isLoading.value = false;
+        }
     };
 
     async function createDir(dirname) {
-        const params = new URLSearchParams();
-        params.append('api', 'createDir');
-        params.append('dir', currentPath.value);
-        params.append('dirname', dirname);
+        isLoading.value = true;
+
+        const blob = new Blob([dirCreationWorker], { type: 'application/javascript'} );
+        const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await axios.post(window.location.href, params);
+            const res = await workerStore.executeTask(workerURL, {
+                dir: currentPath.value,
+                dirname: dirname,
+                url: window.location.href,
+            });
 
-            if (res.data.status === 'OK') {
-                files.value.push(res.data.fileData);
+            if (res.status === 'OK') {
+                files.value.unshift(res.fileData);
             } else {
-                console.warn(res.data.message);
+                console.warn(res.message);
             }
         } catch (err) {
-            console.log(err);
+            console.log('Worker error:', err);
+        } finally {
+            isLoading.value = false;
         }
     };
 
@@ -91,22 +119,17 @@ export const useFilesStore = defineStore('files', () => {
 
         form.submit();
         form.remove();
-    }
+    };
 
-    async function getFileContent(file) {
-        if (file.name === '..' || file.type === 'dir') return;
+    async function changePath(dir) {
+        currentPath.value = dir;
 
-        const params = new URLSearchParams();
-        params.append('api', 'getContent');
-        params.append('dir', currentPath.value);
-        params.append('filename', file.name);
+        await getFiles(dir);
+    };
 
-        try {
-            const res = await axios.post(window.location.href, params);
-        } catch (err) {
-            console.log(err);
-        }
-    }
+    function setSearch(query) {
+        search.value = query;
+    };
 
     return {
         // State
@@ -119,11 +142,11 @@ export const useFilesStore = defineStore('files', () => {
         filteredFiles,
         // Actions
         getFiles,
-        changePath,
-        setSearch,
+        getFileContent,
         createDir,
         downloadFile,
-        getFileContent,
+        changePath,
+        setSearch,
     };
 });
 
