@@ -94,7 +94,7 @@ export const useFilesStore = defineStore('files', () => {
     async function getFileContent(file) {
         const params = new URLSearchParams();
         params.append('api', 'getContent');
-        params.append('dir', '');
+        params.append('dir', currentPath.value);
         params.append('filename', file.name);
 
         try {
