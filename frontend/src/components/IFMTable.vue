@@ -217,7 +217,7 @@ watch(() => filesStore.search, () => {
     <!-- Spinner -->
     <div
         v-show="filesStore.isLoading"
-        class="absolute inset-0 flex items-center justify-center">
+        class="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div class="w-12 h-12 border-4 border-[#337ab7] border-dashed rounded-full animate-spin"></div>
     </div>
 </template>

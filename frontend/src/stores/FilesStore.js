@@ -1,7 +1,8 @@
-import { reactive, ref, computed } from 'vue';
-
+import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
+import { useWorkerStore } from './WorkerStore';
 
+import fileLoader from '@/workers/fileLoader.js?raw';
 import axios from 'axios';
 
 export const useFilesStore = defineStore('files', () => {
@@ -12,6 +13,8 @@ export const useFilesStore = defineStore('files', () => {
     const search = ref('');
     const isLoading = ref(false);
 
+    const workerStore = useWorkerStore();
+
     // --- Getters ---
     const filteredFiles = computed(() => {
         return files.value.filter(f => f.name.toLowerCase().includes(search.value));
@@ -21,23 +24,20 @@ export const useFilesStore = defineStore('files', () => {
     async function getFiles(dir = '') {
         isLoading.value = true;
 
-        const params = new URLSearchParams();
-        params.append('api', 'getFiles');
-        params.append('dir', dir);
+        const blob = new Blob([fileLoader], { type: 'application/javascript' });
+        const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await axios.post(window.location.href, params);
-
-            files.value = res.data.map(f => reactive(f));
-
+            const result = await workerStore.executeTask(workerURL, { dir, url: window.location.href });
+            files.value = result;
             currentPath.value = dir;
-            selectedFiles.value = new Set();
         } catch (err) {
-            console.log(err);
-        } finally {
-            isLoading.value = false;
+            console.error('Worker error:', err);
         }
+
+        isLoading.value = false;
     };
+
 
     async function changePath(dir) {
         currentPath.value = dir;
