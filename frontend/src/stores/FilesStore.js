@@ -5,6 +5,7 @@ import { useWorkerStore } from './WorkerStore';
 import fileLoader from '@/workers/fileLoader.js?raw';
 import contentLoader from '@/workers/contentLoader.js?raw';
 import dirCreationWorker from '@/workers/dirCreationWorker.js?raw';
+import downLoader from '@/workers/downLoader.js?raw';
 
 export const useFilesStore = defineStore('files', () => {
     // --- State ---
@@ -95,30 +96,33 @@ export const useFilesStore = defineStore('files', () => {
         }
     };
 
-    async function downloadFile(files) {
-        let params = {};
+    async function downloadFile(file) {
+        isLoading.value = true;
 
-        if (files.type === 'file') params = { api: 'download', dir: currentPath.value, filename: files.name };
-        if (files.type === 'dir') params = { api: 'zipnload', dir: currentPath.value, filename: files.name };
+        const blob = new Blob([downLoader], { type: 'application/javascript'} );
+        const workerURL = URL.createObjectURL(blob);
 
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = window.location.href;
-        form.style.display = 'none';
+        try {
+            const res = await workerStore.executeTask(workerURL, {
+                api: file.type === 'file' ? 'download' : 'zipnload',
+                dir: currentPath.value,
+                filename: file.name,
+                url: window.location.href,
+            });
 
-        for (const key in params) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = params[key];
+            if (res) {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(res);
+                link.download = file.name;
+                link.click();
 
-            form.appendChild(input);
+                URL.revokeObjectURL(link.href);
+            }
+        } catch (err) {
+            console.log('Worker error:', err);
+        } finally {
+            isLoading.value = false;
         }
-
-        document.body.appendChild(form);
-
-        form.submit();
-        form.remove();
     };
 
     async function changePath(dir) {
