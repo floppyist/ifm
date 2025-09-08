@@ -92,6 +92,8 @@ export const useFilesStore = defineStore('files', () => {
     }
 
     async function getFileContent(file) {
+        if (file.name === '..' || file.type === 'dir') return;
+
         const params = new URLSearchParams();
         params.append('api', 'getContent');
         params.append('dir', currentPath.value);
@@ -99,8 +101,6 @@ export const useFilesStore = defineStore('files', () => {
 
         try {
             const res = await axios.post(window.location.href, params);
-
-            console.log(res.data);
         } catch (err) {
             console.log(err);
         }

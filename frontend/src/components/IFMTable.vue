@@ -103,7 +103,7 @@ watch(() => filesStore.search, () => {
             <!-- Visible rows -->
             <div v-for="file in visibleFiles" :key="file.name" 
                 class="flex border-b border-gray-300 h-[50px] items-center hover:bg-[#add8e6]"
-                :class="{ 'bg-green-100': filesStore.selectedFiles.has(file)}"
+                :class="{ 'bg-green-100': filesStore.selectedFiles.has(file) }"
                 @click="toggleFileSelection(file, $event);"
                 @dblclick="toggleFileSelection(file, $event);">
 
