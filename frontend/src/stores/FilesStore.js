@@ -29,7 +29,9 @@ export const useFilesStore = defineStore('files', () => {
             const res = await axios.post(window.location.href, params);
 
             files.value = res.data.map(f => reactive(f));
+
             currentPath.value = dir;
+            selectedFiles.value = new Set();
         } catch (err) {
             console.log(err);
         } finally {

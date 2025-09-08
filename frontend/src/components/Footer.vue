@@ -13,7 +13,7 @@ const filesStore = useFilesStore();
 
             <div class="flex flex-wrap items-center gap-3 pr-3">
                 <!-- -1: Dont count ".." folder -->
-                {{ filesStore.filteredFiles.length + ' File(s)' }}
+                {{ filesStore.selectedFiles.size + '/' + filesStore.filteredFiles.length + ' File(s) selected' }}
             </div>
         </div>
     </div>

@@ -5,13 +5,19 @@ import { useFilesStore } from '@/stores/FilesStore.js';
 import {
     DocumentIcon,
     FolderIcon,
-    CloudArrowDownIcon,
+    ArrowDownTrayIcon,
 } from '@heroicons/vue/24/outline';
 
 import {
+    CloudArrowDownIcon,
     ChevronDoubleUpIcon,
     EllipsisHorizontalIcon,
 } from '@heroicons/vue/24/solid';
+
+const downloadIcons = {
+    dir: CloudArrowDownIcon,
+    file:  ArrowDownTrayIcon,
+}
 
 const filesStore = useFilesStore();
 
@@ -22,6 +28,11 @@ const buffer = 20;
 const scrollTop = ref(0);
 const containerHeight = ref(0);
 
+const dblDotFolder = {
+    name: '..', 
+    type: 'dir', 
+}
+
 onMounted(() => {
     filesStore.getFiles();
 
@@ -29,7 +40,10 @@ onMounted(() => {
 });
 
 function onScroll() {
-    scrollTop.value = scrollContainer.value.scrollTop;
+    // Using RequestAnimationFrame to update frame by frame
+    requestAnimationFrame(() => {
+        scrollTop.value = scrollContainer.value.scrollTop;
+    });
 };
 
 const startIndex = computed(() => Math.floor(scrollTop.value / itemHeight) - buffer);
@@ -50,6 +64,8 @@ function handleFileNavigation(file) {
         case 'dir':
             if (file.name === '..') {
                 filesStore.changePath(filesStore.currentPath.substring(0, filesStore.currentPath.lastIndexOf('/')));
+
+                if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
             } else {
                 if (filesStore.currentPath === '') {
                     filesStore.changePath(file.name);
@@ -75,6 +91,10 @@ function toggleFileSelection(file, event) {
     }
 };
 
+function getDownloadIcon(type) {
+    return downloadIcons[type] || DocumentIcon;
+}
+
 watch(() => filesStore.search, () => {
     // NOTE: A bit hacky, but prevents longer filtering of elements (search) if the user has previously scrolled to the end
     if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
@@ -96,14 +116,55 @@ watch(() => filesStore.search, () => {
         </div>
 
         <!-- Body -->
-        <div v-show="!filesStore.isLoading" class="flex-1 overflow-auto relative scrollbar-hide" ref="scrollContainer" @scroll="onScroll">
+        <div v-show="!filesStore.isLoading" 
+            class="flex-1 overflow-auto relative scrollbar-hide" ref="scrollContainer" @scroll="onScroll">
             <!-- Top spacer -->
             <div :style="{ height: topSpacer + 'px' }"></div>
 
-            <!-- Visible rows -->
+            <!-- Static dot folder -->
+            <div v-if="filesStore.currentPath !== ''" class="sticky top-0 flex border-b border-gray-300 h-[50px] bg-slate-200 items-center hover:bg-[#add8e6]">
+                <!-- File icon -->
+                <div class="w-10 flex justify-center">
+                    <ChevronDoubleUpIcon class="size-5 text-[#337ab7]" />
+                </div>
+
+                <!-- Filename -->
+                <div class="flex flex-1 items-center h-full min-w-[75px] truncate select-none">
+                    <span
+                        @click.stop="handleFileNavigation(dblDotFolder)" 
+                        class="truncate text-[#337ab7] cursor-pointer hover:underline select-text">
+                        {{ '[up]' }}
+                    </span>
+                </div>
+
+                <!-- Download button -->
+                <div class="flex w-10 justify-center">
+                    <CloudArrowDownIcon v-if="filesStore.currentPath !== ''"
+                        @click="filesStore.downloadFile(dblDotFolder)"
+                        class="size-5 text-[#337ab7] cursor-pointer" />
+                </div>
+
+                <!-- File size -->
+                <div class="w-24 text-left truncate"></div>
+
+                <!-- File permissions -->
+                <div class="w-32 hidden sm:flex"></div>
+
+                <!-- File owner -->
+                <div class="w-24 hidden md:flex"></div>
+
+                <!-- File group -->
+                <div class="w-24 hidden lg:flex"></div>
+
+                <!-- Actions -->
+                <div class="w-10"></div>
+            </div>
+
+            <!-- Data -->
             <div v-for="file in visibleFiles" :key="file.name" 
                 class="flex border-b border-gray-300 h-[50px] items-center hover:bg-[#add8e6]"
                 :class="{ 'bg-green-100': filesStore.selectedFiles.has(file) }"
+                :style="{ top: itemHeight + 'px' }"
                 @click="toggleFileSelection(file, $event);"
                 @dblclick="toggleFileSelection(file, $event);">
 
@@ -111,7 +172,6 @@ watch(() => filesStore.search, () => {
                 <div class="w-10 flex justify-center">
                     <DocumentIcon v-if="file.type === 'file'" class="size-5 text-[#337ab7]" />
                     <FolderIcon v-if="file.type === 'dir' && file.name !== '..'" class="size-5 text-[#337ab7]" />
-                    <ChevronDoubleUpIcon v-if="file.name === '..'" class="size-5 text-[#337ab7]" />
                 </div>
 
                 <!-- Filename -->
@@ -119,15 +179,15 @@ watch(() => filesStore.search, () => {
                     <span
                         @click.stop="handleFileNavigation(file)" 
                         class="truncate text-[#337ab7] cursor-pointer hover:underline select-text">
-                        {{ (file.name === '..' ? '[up]' : file.name )}}
+                        {{ file.name }}
                     </span>
                 </div>
 
                 <!-- Download button -->
                 <div class="flex w-10 justify-center">
-                    <CloudArrowDownIcon
+                    <component :is="getDownloadIcon(file.type)"
                         @click="filesStore.downloadFile(file)"
-                        class="size-6 text-[#337ab7] cursor-pointer" />
+                        class="size-5 text-[#337ab7] cursor-pointer" />
                 </div>
 
                 <!-- File size -->

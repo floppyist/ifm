@@ -236,7 +236,7 @@ f00bar;
 					continue;
 				elseif (($result == ".htaccess" || $result==".htpasswd") && $this->config['showhtdocs'] != 1)
 					continue;
-				elseif ($result == ".")
+				elseif ($result == "." || $result == '..')
 					continue;
 				elseif ($result != ".." && substr($result, 0, 1) == "." && $this->config['showhiddenfiles'] != 1)
 					continue;
