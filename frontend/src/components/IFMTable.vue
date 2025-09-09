@@ -59,7 +59,7 @@ const visibleFiles = computed(() => {
 const topSpacer = computed(() => Math.max(0, startIndex.value) * itemHeight);
 const bottomSpacer = computed(() => Math.max(0, filesStore.filteredFiles.length - endIndex.value) * itemHeight);
 
-function handleFileNavigation(file) {
+async function handleFileNavigation(file) {
     switch (file.type) {
         case 'dir':
             if (file.name === '..') {
@@ -73,11 +73,16 @@ function handleFileNavigation(file) {
                     filesStore.changePath(filesStore.currentPath + '/' + file.name);
                 }
             }
+
+            break;
         case 'file':
             // TODO: Not finished yet; just for testing
-            filesStore.getFileContent(file);
+            const content = await filesStore.getFileContent(file);
+            console.log(content);
 
-        default: break;
+            break;
+        default: 
+            break;
     }
 };
 

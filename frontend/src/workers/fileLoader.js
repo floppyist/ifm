@@ -7,10 +7,16 @@ self.onmessage = async (e) => {
 
     const res = await fetch(url, { method: 'POST', body: params });
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    try {
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+        } else {
+            const payload = await res.json();
 
-    const payload = await res.json();
-
-    self.postMessage({ payload });
+            self.postMessage({ payload });
+        } 
+    } catch (err) {
+        self.postMessage({ error: err.message });
+    }
 };
 
