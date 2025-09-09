@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { defineStore } from 'pinia';
 import { useWorkerStore } from './WorkerStore';
 
@@ -35,7 +35,9 @@ export const useFilesStore = defineStore('files', () => {
                 url: window.location.href 
             });
 
-            files.value = res;
+            files.value = res.map(f => reactive(f));
+
+            selectedFiles.value = new Set();
             currentPath.value = dir;
         } catch (err) {
             console.error('Worker error:', err);
