@@ -99,8 +99,6 @@ export const useFilesStore = defineStore('files', () => {
     };
 
     async function downloadFile(file) {
-        isLoading.value = true;
-
         const blob = new Blob([downLoader], { type: 'application/javascript'} );
         const workerURL = URL.createObjectURL(blob);
 
@@ -122,8 +120,6 @@ export const useFilesStore = defineStore('files', () => {
             }
         } catch (err) {
             console.log('Worker error:', err);
-        } finally {
-            isLoading.value = false;
         }
     };
 

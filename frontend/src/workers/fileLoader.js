@@ -6,6 +6,9 @@ self.onmessage = async (e) => {
     params.append('dir', dir);
 
     const res = await fetch(url, { method: 'POST', body: params });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
     const payload = await res.json();
 
     self.postMessage({ payload });

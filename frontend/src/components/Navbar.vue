@@ -39,7 +39,8 @@ function updateSearch() {
             <div class="flex items-center gap-3 bg-slate-600 rounded-lg px-3 py-2">
                 <ArrowPathIcon 
                     @click="filesStore.getFiles(filesStore.currentPath)" 
-                    class="size-5 cursor-pointer hover:text-blue-200" />
+                    class="size-5 cursor-pointer hover:text-blue-200"
+                    :class="{ 'opacity-50 animate-spin pointer-events-none': filesStore.isLoading }" />
 
                 <ArrowDownTrayIcon class="size-5 cursor-pointer hover:text-blue-200" />
                 <DocumentPlusIcon class="size-5 cursor-pointer hover:text-blue-200" />
