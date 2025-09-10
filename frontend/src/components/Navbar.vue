@@ -1,9 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 
 import { useFilesStore } from '@/stores/FilesStore.js';
-
-import NewDirModal from '@/components/modals/NewDirModal.vue';
+import { useModalsStore } from '@/stores/ModalsStore.js';
 
 import { 
     ArrowPathIcon, 
@@ -14,39 +13,9 @@ import {
 } from '@heroicons/vue/24/outline';
 
 const filesStore = useFilesStore();
+const modalsStore = useModalsStore();
 
 const search = ref(filesStore.search);
-
-const newDirModal = ref(null);
-const isNewDirModalOpen = ref(false);
-
-onMounted(() => 
-    window.addEventListener('keydown', handleKey)
-);
-
-function handleKey(e) {
-    switch (e.key) {
-        case 'n':
-            e.preventDefault();
-            openModal(newDirModal.value);
-            window.removeEventListener('keydown', handleKey);
-            break;
-    }
-};
-
-function openModal(modal) {
-    isNewDirModalOpen.value = true;
-
-    modal.open();
-    window.removeEventListener('keydown', handleKey)
-};
-
-function closeModal(modal) {
-    isNewDirModalOpen.value = false;
-
-    modal.close();
-    window.addEventListener('keydown', handleKey);
-}
 </script>
 
 <template>
@@ -55,7 +24,7 @@ function closeModal(modal) {
             <div class="flex w-full items-center gap-3">
                 <div 
                     @click="filesStore.getFiles()"
-                    class="text-3xl font-semibold text-blue-200 bg-slate-600 rounded-lg px-3 cursor-pointer">
+                    class="text-3xl font-semibold bg-slate-600 rounded-lg px-3 cursor-pointer">
                     <p>
                         IFM
                     </p>
@@ -71,7 +40,7 @@ function closeModal(modal) {
 
             <div class="flex items-center gap-3 bg-slate-600 rounded-lg px-3 py-2">
                 <ArrowPathIcon 
-                    @click="filesStore.getFiles(filesStore.currentPath)" 
+                    @click="filesStore.refresh()"
                     class="size-5 cursor-pointer hover:text-blue-200"
                     :class="{ 'opacity-50 animate-spin pointer-events-none': filesStore.isLoading }" />
 
@@ -84,9 +53,9 @@ function closeModal(modal) {
                 />
 
                 <FolderPlusIcon 
-                    @click="openModal(newDirModal)" 
+                    @click="modalsStore.openModal('newDir')"
                     class="size-5 cursor-pointer hover:text-blue-200" 
-                    :class="{ 'text-yellow-400' : isNewDirModalOpen }"
+                    :class="{ 'text-yellow-400' : modalsStore.modals.newDir?.isOpen }"
                 />
 
                 <Bars3Icon 
@@ -95,7 +64,4 @@ function closeModal(modal) {
             </div>
         </div>
     </nav>
-
-    <!-- Modals -->
-    <NewDirModal ref="newDirModal" @close="closeModal(newDirModal)" /> 
 </template>

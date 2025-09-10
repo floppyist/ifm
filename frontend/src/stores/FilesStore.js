@@ -1,4 +1,4 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, nextTick } from 'vue';
 import { defineStore } from 'pinia';
 import { useWorkerStore } from './WorkerStore';
 
@@ -45,6 +45,10 @@ export const useFilesStore = defineStore('files', () => {
             isLoading.value = false;
         }
     };
+
+    async function refresh() {
+        await getFiles(currentPath.value);
+    }
 
     async function getFileContent(file) {
         if (file.name === '..' || file.type === 'dir') return null;
@@ -140,6 +144,7 @@ export const useFilesStore = defineStore('files', () => {
         filteredFiles,
         // Actions
         getFiles,
+        refresh,
         getFileContent,
         createDir,
         downloadFile,
