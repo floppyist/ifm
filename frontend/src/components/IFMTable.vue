@@ -65,7 +65,6 @@ async function handleFileNavigation(file) {
             if (file.name === '..') {
                 filesStore.changePath(filesStore.currentPath.substring(0, filesStore.currentPath.lastIndexOf('/')));
 
-                if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
             } else {
                 if (filesStore.currentPath === '') {
                     filesStore.changePath(file.name);
@@ -74,10 +73,13 @@ async function handleFileNavigation(file) {
                 }
             }
 
+            if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
+
             break;
         case 'file':
             // TODO: Not finished yet; just for testing
             const content = await filesStore.getFileContent(file);
+
             console.log(content);
 
             break;
@@ -138,15 +140,19 @@ watch(() => filesStore.search, () => {
                     <span
                         @click.stop="handleFileNavigation(dblDotFolder)" 
                         class="truncate text-[#337ab7] cursor-pointer hover:underline select-text">
-                        {{ '[up]' }}
+                        <p>
+                            {{ '[up]' }}
+                        </p>
                     </span>
                 </div>
 
                 <!-- Download button -->
                 <div class="flex w-10 justify-center">
-                    <CloudArrowDownIcon v-if="filesStore.currentPath !== ''"
+                    <CloudArrowDownIcon 
+                        v-if="filesStore.currentPath !== ''"
                         @click="filesStore.downloadFile(dblDotFolder)"
-                        class="size-5 text-[#337ab7] cursor-pointer" />
+                        class="size-5 text-[#337ab7] cursor-pointer" 
+                    />
                 </div>
 
                 <!-- File size -->
@@ -192,7 +198,8 @@ watch(() => filesStore.search, () => {
                 <div class="flex w-10 justify-center">
                     <component :is="getDownloadIcon(file.type)"
                         @click="filesStore.downloadFile(file)"
-                        class="size-5 text-[#337ab7] cursor-pointer" />
+                        class="size-5 text-[#337ab7] cursor-pointer" 
+                    />
                 </div>
 
                 <!-- File size -->

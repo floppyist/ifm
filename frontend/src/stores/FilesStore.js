@@ -74,8 +74,6 @@ export const useFilesStore = defineStore('files', () => {
     };
 
     async function createDir(dirname) {
-        isLoading.value = true;
-
         const blob = new Blob([dirCreationWorker], { type: 'application/javascript'} );
         const workerURL = URL.createObjectURL(blob);
 
@@ -93,8 +91,6 @@ export const useFilesStore = defineStore('files', () => {
             }
         } catch (err) {
             console.log('Worker error:', err);
-        } finally {
-            isLoading.value = false;
         }
     };
 
