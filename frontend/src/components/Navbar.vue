@@ -34,7 +34,7 @@ const search = ref(filesStore.search);
                     v-model="search" 
                     @input="filesStore.setSearch(search)" 
                     class="w-full bg-slate-600 text-white text-semibold text-lg px-3 py-1 focus:outline-none rounded-lg" 
-                    placeholder="Search.."
+                    placeholder="Search..."
                 />
             </div>
 

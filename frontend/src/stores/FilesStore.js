@@ -91,10 +91,10 @@ export const useFilesStore = defineStore('files', () => {
             if (res.status === 'OK') {
                 files.value.unshift(res.fileData);
             } else {
-                console.warn(res.message);
+                throw new Error(res.message);
             }
         } catch (err) {
-            console.log('Worker error:', err);
+            throw err;
         }
     };
 
