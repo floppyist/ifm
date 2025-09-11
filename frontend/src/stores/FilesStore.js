@@ -1,4 +1,4 @@
-import { ref, reactive, computed, nextTick } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { defineStore } from 'pinia';
 import { useWorkerStore } from './WorkerStore';
 
@@ -8,7 +8,7 @@ import dirCreationWorker from '@/workers/dirCreationWorker.js?raw';
 import downLoader from '@/workers/downLoader.js?raw';
 
 export const useFilesStore = defineStore('files', () => {
-    // --- State ---
+    /* State */
     const files = ref([]);
     const selectedFiles = ref(new Set());
     const currentPath = ref('');
@@ -17,12 +17,12 @@ export const useFilesStore = defineStore('files', () => {
 
     const workerStore = useWorkerStore();
 
-    // --- Getters ---
+    /* Getters */
     const filteredFiles = computed(() => {
         return files.value.filter(f => f.name.toLowerCase().includes(search.value));
     });
 
-    // --- Actions ---
+    /* Actions */
     async function getFiles(dir = '') {
         isLoading.value = true;
 
@@ -134,15 +134,15 @@ export const useFilesStore = defineStore('files', () => {
     };
 
     return {
-        // State
+        /* State */
         files,
         selectedFiles,
         currentPath,
         search,
         isLoading,
-        // Getters
+        /* Getters */
         filteredFiles,
-        // Actions
+        /* Actions */
         getFiles,
         refresh,
         getFileContent,

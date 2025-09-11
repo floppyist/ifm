@@ -25,7 +25,7 @@ const workerStore = useWorkerStore();
         </div>
         <div class="pl-3 text-xs">
             <p>
-                {{ 'Running tasks: ' + workerStore.tasks.length }}
+                {{ 'Running tasks: ' + workerStore.tasks.filter(t => t.status === 'PENDING').length }}
             </p>
         </div>
     </div>

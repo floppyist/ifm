@@ -1,31 +1,41 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 
 export const useWorkerStore = defineStore('worker', () => {
+    /* State */
     const tasks = ref([]);
 
+    /* Actions */
     function executeTask(workerModuleURL, payload) {
         return new Promise((resolve, reject) => {
             const worker = new Worker(workerModuleURL, { type: 'module' });
             const taskId = Date.now();
 
-            tasks.value.push({ id: taskId, worker });
+            const task = reactive({ id: taskId, workerModuleURL, status: '' });
+            tasks.value.push(task);
+
+            task.status = 'PENDING';
 
             worker.onmessage = (e) => {
-                if (e.data.error) reject(e.data.error);
-                else if (e.data.payload) resolve(e.data.payload);
+                if (e.data.error) {
+                    task.status = 'ERROR';
+
+                    reject(e.data.error);
+                } else if (e.data.payload) {
+                    task.status = 'DONE';
+
+                    resolve(e.data.payload);
+                }
 
                 worker.terminate();
-
-                tasks.value = tasks.value.filter(t => t.id !== taskId);
             };
 
             worker.onerror = (err) => {
+                task.status = 'ERROR';
+
                 reject(err.message);
 
                 worker.terminate();
-
-                tasks.value = tasks.value.filter(t => t.id !== taskId);
             };
 
             worker.postMessage(payload);
@@ -37,12 +47,15 @@ export const useWorkerStore = defineStore('worker', () => {
 
         if (task) {
             task.worker.terminate();
+            tasl.status = 'ABORT';
             tasks.value = tasks.value.filter(t => t.id !== id);
         }
     };
 
     return { 
+        /* State */
         tasks,
+        /* Actions */
         executeTask,
         terminateTask,
     };

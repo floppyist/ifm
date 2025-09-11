@@ -3,13 +3,16 @@ import { ref } from 'vue';
 import { defineStore } from 'pinia';
 
 export const useModalsStore = defineStore('modals', () => {
+    /* State */
     const modals = {
         newDir: ref(null),
+        tasks: ref(null),
     };
 
     let removeEventListenerCallback = null;
     let addEventListenerCallback = null;
 
+    /* Actions */
     function registerModal(name, instance) {
         if (modals[name]) {
             modals[name].value = instance;
@@ -43,7 +46,9 @@ export const useModalsStore = defineStore('modals', () => {
     };
 
     return { 
+        /* State */
         modals,
+        /* Actions */
         registerModal,
         setRemoveEventListenerCallback,
         setAddEventListenerCallback,

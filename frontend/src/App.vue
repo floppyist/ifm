@@ -9,16 +9,19 @@ import IFMTable from '@/components/IFMTable.vue';
 import Footer from '@/components/Footer.vue';
 
 import NewDirModal from '@/components/modals/NewDirModal.vue';
+import TasksModal from '@/components/modals/TasksModal.vue';
 
 const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
 
 const newDirModal = ref(null);
+const tasksModal = ref(null);
 
 onMounted(() => {
     window.addEventListener('keydown', handleGlobalKeys);
 
     modalsStore.registerModal('newDir', newDirModal.value);
+    modalsStore.registerModal('tasks', tasksModal.value);
 
     modalsStore.setRemoveEventListenerCallback(() => {
         window.removeEventListener('keydown', handleGlobalKeys);
@@ -35,14 +38,19 @@ function handleGlobalKeys(e) {
     if (active && (active.tagName === 'INPUT')) {
         return;
     }
-    
+
     switch (e.key) {
+        case 'r':
+            filesStore.refresh();
+            break;
         case 'n':
             e.preventDefault();
             modalsStore.openModal('newDir');
             break;
-        case 'r':
-            filesStore.refresh();
+        case 't':
+            e.preventDefault();
+            modalsStore.openModal('tasks');
+            break;
     }
 };
 </script>
@@ -53,11 +61,12 @@ function handleGlobalKeys(e) {
 
         <div class="flex-auto overflow-x-hidden">
             <IFMTable></IFMTable>
-    </div>
+        </div>
 
         <Footer />
 
         <!-- Modals -->
         <NewDirModal ref="newDirModal" />
+        <TasksModal ref="tasksModal" />
     </main>
 </template>

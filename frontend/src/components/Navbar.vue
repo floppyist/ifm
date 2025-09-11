@@ -59,7 +59,9 @@ const search = ref(filesStore.search);
                 />
 
                 <Bars3Icon 
+                    @click="modalsStore.openModal('tasks')"
                     class="size-5 cursor-pointer hover:text-blue-200" 
+                    :class="{ 'text-yellow-400': modalsStore.modals.tasks?.isOpen }"
                 />
             </div>
         </div>
