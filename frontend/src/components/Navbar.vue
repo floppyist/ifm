@@ -48,8 +48,10 @@ const search = ref(filesStore.search);
                     class="size-5 cursor-pointer hover:text-blue-200" 
                 />
 
-                <DocumentPlusIcon 
+                <DocumentPlusIcon
+                    @click="modalsStore.openModal('newFile')"
                     class="size-5 cursor-pointer hover:text-blue-200" 
+                    :class="{ 'text-yellow-400' : modalsStore.modals.newFile?.isOpen }"
                 />
 
                 <FolderPlusIcon 

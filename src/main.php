@@ -468,22 +468,21 @@ f00bar;
 
 	// save a file
 	private function saveFile($d) {
-		if (
-			(file_exists($this->pathCombine($d['dir'], $d['filename'])) && $this->config['edit'] != 1 )
+        if (
+			(file_exists($this->pathCombine($d['dir'], $d['filename'])) && $this->config['edit'] != 1)
 			|| (!file_exists($this->pathCombine($d['dir'], $d['filename'])) && $this->config['createfile'] != 1)
-		)
-			throw new IFMException($this->l('nopermissions'));
+        ) throw new IFMException($this->l('nopermissions'));
 
-		if (isset($d['filename']) && $this->isFilenameValid($d['filename'])) {
-			if (isset($d['content'])) {
-				if (@file_put_contents($d['filename'], $d['content']) !== false)
-					return ["status" => "OK", "message" => $this->l('file_save_success')];
-				else
-					throw new Exception($this->l('file_save_error'));
-			} else
-				throw new IFMException($this->l('file_save_error'));
+		if ($d['filename'] == "" && $this->isFilenameValid($d['filename']))
+	        throw new IFMException($this->l('invalid_filename'));
+        
+        if (isset($d['content'])) {
+			if (@file_put_contents($d['filename'], $d['content']) !== false)
+				return ["status" => "OK", "message" => $this->l('file_save_success'), "fileData" => $this->getItemInformation($d['filename'])];
+			else
+				throw new Exception($this->l('file_save_error'));
 		} else
-			throw new IFMException($this->l('invalid_filename'));
+			throw new IFMException($this->l('file_save_error'));
 	}
 
 	// gets the content of a file

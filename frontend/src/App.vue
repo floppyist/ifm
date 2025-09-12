@@ -8,12 +8,14 @@ import Navbar from '@/components/Navbar.vue';
 import IFMTable from '@/components/IFMTable.vue';
 import Footer from '@/components/Footer.vue';
 
+import NewFileModal from '@/components/modals/NewFileModal.vue';
 import NewDirModal from '@/components/modals/NewDirModal.vue';
 import TasksModal from '@/components/modals/TasksModal.vue';
 
 const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
 
+const newFileModal = ref(null);
 const newDirModal = ref(null);
 const tasksModal = ref(null);
 
@@ -23,6 +25,7 @@ let timeout = null;
 onMounted(() => {
     window.addEventListener('keydown', handleGlobalKeys);
 
+    modalsStore.registerModal('newFile', newFileModal.value);
     modalsStore.registerModal('newDir', newDirModal.value);
     modalsStore.registerModal('tasks', tasksModal.value);
 
@@ -49,15 +52,19 @@ function handleGlobalKeys(e) {
                 const scrollContainer = document.getElementById('scrollContainer');
                 scrollContainer.scrollTo(0, scrollContainer.scrollHeight);
                 break;
+            case 'F':
+                e.preventDefault();
+                modalsStore.openModal('newFile');
+                break;
+            case 'D':
+                e.preventDefault();
+                modalsStore.openModal('newDir')
+                break;
         }
     } else {
         switch (e.key) {
             case 'r':
                 filesStore.refresh();
-                break;
-            case 'n':
-                e.preventDefault();
-                modalsStore.openModal('newDir');
                 break;
             case 't':
                 e.preventDefault();
@@ -92,6 +99,7 @@ function handleGlobalKeys(e) {
         <Footer />
 
         <!-- Modals -->
+        <NewFileModal ref="newFileModal" />
         <NewDirModal ref="newDirModal" />
         <TasksModal ref="tasksModal" />
     </main>

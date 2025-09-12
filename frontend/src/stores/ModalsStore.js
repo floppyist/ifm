@@ -5,6 +5,7 @@ import { defineStore } from 'pinia';
 export const useModalsStore = defineStore('modals', () => {
     /* State */
     const modals = {
+        newFile: ref(null),
         newDir: ref(null),
         tasks: ref(null),
     };

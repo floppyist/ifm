@@ -4,6 +4,7 @@ import { useWorkerStore } from './WorkerStore';
 
 import fileLoader from '@/workers/fileLoader.js?raw';
 import contentLoader from '@/workers/contentLoader.js?raw';
+import fileCreationWorker from '@/workers/fileCreationWorker.js?raw';
 import dirCreationWorker from '@/workers/dirCreationWorker.js?raw';
 import downLoader from '@/workers/downLoader.js?raw';
 
@@ -77,8 +78,30 @@ export const useFilesStore = defineStore('files', () => {
         }
     };
 
+    async function createFile(filename, content) {
+        const blob = new Blob([fileCreationWorker], { type: 'application/javascript' });
+        const workerURL = URL.createObjectURL(blob);
+
+        try {
+            const res = await workerStore.executeTask(workerURL, {
+                dir: currentPath.value,
+                filename: filename,
+                content: content,
+                url: window.location.href,
+            });
+
+            if (res.status === 'OK') {
+                files.value.unshift(res.fileData) 
+            } else {
+                throw new Error(res.message);
+            }
+        } catch (err) {
+            throw err;
+        }
+    }
+
     async function createDir(dirname) {
-        const blob = new Blob([dirCreationWorker], { type: 'application/javascript'} );
+        const blob = new Blob([dirCreationWorker], { type: 'application/javascript' });
         const workerURL = URL.createObjectURL(blob);
 
         try {
@@ -148,6 +171,7 @@ export const useFilesStore = defineStore('files', () => {
         getFiles,
         refresh,
         getFileContent,
+        createFile,
         createDir,
         downloadFile,
         changePath,
