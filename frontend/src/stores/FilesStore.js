@@ -114,7 +114,9 @@ export const useFilesStore = defineStore('files', () => {
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(res);
                 link.download = file.type === 'file' ? file.name : file.name + '.zip';
+                document.body.appendChild(link);
                 link.click();
+                link.remove();
 
                 URL.revokeObjectURL(link.href);
             }
