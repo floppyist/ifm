@@ -17,6 +17,9 @@ const modalsStore = useModalsStore();
 const newDirModal = ref(null);
 const tasksModal = ref(null);
 
+let lastKey = null;
+let timeout = null;
+
 onMounted(() => {
     window.addEventListener('keydown', handleGlobalKeys);
 
@@ -39,18 +42,41 @@ function handleGlobalKeys(e) {
         return;
     }
 
-    switch (e.key) {
-        case 'r':
-            filesStore.refresh();
-            break;
-        case 'n':
-            e.preventDefault();
-            modalsStore.openModal('newDir');
-            break;
-        case 't':
-            e.preventDefault();
-            modalsStore.openModal('tasks');
-            break;
+    if (e.shiftKey) {
+        switch (e.key) {
+            case 'G':
+                e.preventDefault();
+                const scrollContainer = document.getElementById('scrollContainer');
+                scrollContainer.scrollTo(0, scrollContainer.scrollHeight);
+                break;
+        }
+    } else {
+        switch (e.key) {
+            case 'r':
+                filesStore.refresh();
+                break;
+            case 'n':
+                e.preventDefault();
+                modalsStore.openModal('newDir');
+                break;
+            case 't':
+                e.preventDefault();
+                modalsStore.openModal('tasks');
+                break;
+            case 'g':
+                if (lastKey === 'g') {
+                    scrollContainer.scrollTo(0, 0);
+                    lastKey = null;
+                    clearTimeout(timeout);
+                } else {
+                    lastKey = 'g';
+                    timeout = setTimeout(() => {
+                        lastKey = null;
+                    }, 500);
+                }
+                break;
+        }
+
     }
 };
 </script>

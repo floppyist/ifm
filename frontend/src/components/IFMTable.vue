@@ -124,6 +124,7 @@ watch(() => filesStore.search, () => {
 
         <!-- Body -->
         <div v-show="!filesStore.isLoading" 
+            id="scrollContainer"
             class="flex-1 overflow-auto relative scrollbar-hide" ref="scrollContainer" @scroll="onScroll">
             <!-- Top spacer -->
             <div :style="{ height: topSpacer + 'px' }"></div>
