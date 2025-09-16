@@ -1,11 +1,12 @@
 self.onmessage = async (e) => {
-    const { dir, filename, content, url } = e.data;
+    const { dir, filename, content, override, url } = e.data;
 
     const params = new URLSearchParams();
     params.append('api', 'saveFile');
     params.append('dir', dir);
-    params.append('filename', filename );
+    params.append('filename', filename);
     params.append('content', content );
+    params.append('override', override);
 
     try {
         const res = await fetch(url, { method: 'POST', body: params });

@@ -78,7 +78,7 @@ export const useFilesStore = defineStore('files', () => {
         }
     };
 
-    async function createFile(filename, content) {
+    async function createFile(filename, content, override=false) {
         const blob = new Blob([fileCreationWorker], { type: 'application/javascript' });
         const workerURL = URL.createObjectURL(blob);
 
@@ -87,11 +87,14 @@ export const useFilesStore = defineStore('files', () => {
                 dir: currentPath.value,
                 filename: filename,
                 content: content,
+                override: override,
                 url: window.location.href,
             });
 
             if (res.status === 'OK') {
-                files.value.unshift(res.fileData) 
+                if (!override) {
+                    files.value.unshift(res.fileData) 
+                }
             } else {
                 throw new Error(res.message);
             }

@@ -468,6 +468,10 @@ f00bar;
 
 	// save a file
 	private function saveFile($d) {
+        if (file_exists($this->pathCombine($d['dir'], $d['filename'])) && $d['override'] == 'false') {
+            return ["status" => "ERROR", "message" => "File already exists."];
+        }
+
         if (
 			(file_exists($this->pathCombine($d['dir'], $d['filename'])) && $this->config['edit'] != 1)
 			|| (!file_exists($this->pathCombine($d['dir'], $d['filename'])) && $this->config['createfile'] != 1)

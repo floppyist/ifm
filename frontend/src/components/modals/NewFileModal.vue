@@ -23,17 +23,20 @@ const filename = ref('');
 const content = ref('');
 const error = ref('');
 
-async function createFileAndClose() {
+const overrideFlag = ref(false);
+
+async function createFileAndClose(override) {
     if (filesStore.isLoading) {
         error.value = 'Wait until the table has loaded...'
         return;
     }
 
     try {
-        await filesStore.createFile(filename.value, content.value);
+        await filesStore.createFile(filename.value, content.value, override);
         modalsStore.closeModal('newFile');
         error.value = '';
     } catch (err) {
+        overrideFlag.value = true;
         error.value = err.message;
     }
 };
@@ -57,6 +60,7 @@ function close() {
     filename.value = '';
     content.value = '';
     error.value = '';
+    overrideFlag.value = false;
     modal.value.close();
     isOpen.value = false;
 };
@@ -101,9 +105,15 @@ defineExpose({ open, close, isOpen });
         <!-- Footer -->
         <div class="flex gap-2 justify-end text-white text-lg pt-3 border-t-1 border-slate-500">
             <button 
-                @click="createFileAndClose"
+                @click="createFileAndClose(false)"
                 class="px-1 rounded-sm bg-green-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
                 Create
+            </button>
+            <button 
+                v-if="overrideFlag"
+                @click="createFileAndClose(true)"
+                class="px-1 rounded-sm bg-yellow-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
+                Override
             </button>
             <button 
                 @click="modalsStore.closeModal('newFile')"
