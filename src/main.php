@@ -197,7 +197,7 @@ f00bar;
 			case "saveFile":	return $this->saveFile($_REQUEST);
 			case "getContent":	return $this->getContent($_REQUEST);
 			case "delete":		return $this->deleteFiles($_REQUEST);
-			case "rename":		return $this->renameFile($_REQUEST);
+			case "editFile":		return $this->editFile($_REQUEST);
 			case "download":	return $this->downloadFile($_REQUEST);
 			case "extract":		return $this->extractFile($_REQUEST);
 			case "upload":		return $this->uploadFile($_REQUEST);
@@ -534,17 +534,42 @@ f00bar;
 		}
 	}
 
-	// renames a file
-	private function renameFile(array $d) {
-		if ($this->config['rename'] != 1)
-			throw new IFMException($this->l('nopermissions'));
-		elseif (!$this->isFilenameValid($d['filename']) || !$this->isFilenameValid($d['newname']))
-			throw new IFMException($this->l('invalid_filename'));
+	// edits a file
+	private function editFile(array $d) {
+        if (
+			(file_exists($this->pathCombine($d['dir'], $d['filename'])) && $this->config['edit'] != 1)
+			|| (!file_exists($this->pathCombine($d['dir'], $d['filename'])) && $this->config['createfile'] != 1)
+        ) throw new IFMException($this->l('nopermissions'));
+    
+        if ($d['filename'] == "" && $this->isFilenameValid($d['filename']))
+	        throw new IFMException($this->l('invalid_filename'));
 
-		if (@rename($d['filename'], $d['newname']))
-			return ["status" => "OK", "message" => $this->l('file_rename_success')];
-		else
-			throw new IFMException($this->l('file_rename_error'));
+        // Check if rename is valid
+        if (file_exists($d['newname']) && $d['override'] == 'false') {
+            return ["status" => "ERROR", "message" => "File already exists."];
+        } elseif ($d['override'] == 'true') {
+            if ($this->config['rename'] != 1)
+			    throw new IFMException($this->l('nopermissions'));
+            elseif (!$this->isFilenameValid($d['newname']) || !$this->isFilenameValid($d['newname']))
+		    	throw new IFMException($this->l('invalid_filename'));
+        }
+        
+        if ($d['newname'] == '') {
+                $rename = $d['filename'];
+        } else {
+            if (@rename($d['filename'], $d['newname']))
+                $rename = $d['newname'];
+            else 
+                throw new IFMException($this->l('file_rename_error'));
+        }
+
+        if (isset($d['content'])) {
+            if (@file_put_contents($rename, $d['content']) !== false)
+                return ["status" => "OK", "message" => $this->l('file_save_success'), "fileData" => $this->getItemInformation($rename)];
+            else
+                throw new Exception($this->l('file_save_error'));
+        } else
+            throw new IFMException($this->l('file_save_error'));
 	}
 
 	// provides a file for downloading

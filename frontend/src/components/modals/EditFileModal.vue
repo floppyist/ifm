@@ -20,20 +20,21 @@ const modal = ref(null);
 const input = ref(null);
 
 const filename = ref('');
+const newname = ref('');
 const content = ref('');
 const error = ref('');
 
 const overrideFlag = ref(false);
 
-async function createFileAndClose(override) {
+async function editFileAndClose(override) {
     if (filesStore.isLoading) {
         error.value = 'Wait until the table has loaded...'
         return;
     }
 
     try {
-        await filesStore.createFile(filename.value, content.value, override);
-        modalsStore.closeModal('newFile');
+        await filesStore.editFile(filename.value, newname.value, content.value, override);
+        modalsStore.closeModal('editFile');
         error.value = '';
     } catch (err) {
         overrideFlag.value = true;
@@ -50,7 +51,10 @@ const editorMode = computed(() => {
     return getModeByExtension(filename.value);
 });
 
-function open() {
+async function open(file) {
+    filename.value = file.name;
+    content.value = await filesStore.getFileContent(file);
+
     modal.value.show();
     nextTick(() => input.value.focus());
     isOpen.value = true;
@@ -58,6 +62,7 @@ function open() {
 
 function close() {
     filename.value = '';
+    newname.value = '';
     content.value = '';
     error.value = '';
     overrideFlag.value = false;
@@ -72,24 +77,24 @@ defineExpose({ open, close, isOpen });
 
 <template>
     <!-- Modal -->
-    <dialog @keydown.esc="modalsStore.closeModal('newFile') "ref="modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-slate-700 text-slate-300 rounded-lg shadow-xl/30 w-[400px] z-1">
+    <dialog @keydown.esc="modalsStore.closeModal('editFile') "ref="modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-slate-700 text-slate-300 rounded-lg shadow-xl/30 w-[400px] z-1">
         <!-- Header -->
         <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold">
-                Create New File
+                Edit File
             </h2>
-            <button @click="modalsStore.closeModal('newFile')" class="hover:text-red-500 text-xl bg-slate-600 rounded-lg px-2 cursor-pointer">&times;</button>
+            <button @click="modalsStore.closeModal('editFile')" class="hover:text-red-500 text-xl bg-slate-600 rounded-lg px-2 cursor-pointer">&times;</button>
         </div>
 
         <!-- Body -->
         <div class="flex flex-col pt-3">
             <input 
                 ref="input"
-                v-model="filename" 
-                @keydown.enter="createFileAndClose(false)"
+                v-model="newname" 
+                @keydown.enter="editFileAndClose(false)"
                 class="w-full focus:outline-none rounded-sm bg-slate-600 pl-2" 
                 type="text" 
-                placeholder="filename"
+                :placeholder="filename"
             />
             <p class="text-xs py-1">{{ 'Path: /' + filesStore.currentPath }}</p>
             <v-ace-editor
@@ -105,18 +110,18 @@ defineExpose({ open, close, isOpen });
         <!-- Footer -->
         <div class="flex gap-2 justify-end text-white text-lg pt-3 border-t-1 border-slate-500">
             <button 
-                @click="createFileAndClose(false)"
+                @click="editFileAndClose(false)"
                 class="px-1 rounded-sm bg-green-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
-                Create
+                Save
             </button>
             <button 
                 v-if="overrideFlag"
-                @click="createFileAndClose(true)"
+                @click="editFileAndClose(true)"
                 class="px-1 rounded-sm bg-yellow-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
                 Override
             </button>
             <button 
-                @click="modalsStore.closeModal('newFile')"
+                @click="modalsStore.closeModal('editFile')"
                 class="px-1 rounded-sm bg-red-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
                 Cancel
             </button>

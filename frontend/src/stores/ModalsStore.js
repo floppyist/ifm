@@ -6,6 +6,7 @@ export const useModalsStore = defineStore('modals', () => {
     /* State */
     const modals = {
         newFile: ref(null),
+        editFile: ref(null),
         newDir: ref(null),
         tasks: ref(null),
     };
@@ -28,10 +29,10 @@ export const useModalsStore = defineStore('modals', () => {
         addEventListenerCallback = callback;
     };
 
-    function openModal(name) {
+    function openModal(name, data='') {
         if (modals[name]) {
             removeEventListenerCallback();
-            modals[name].value.open();
+            modals[name].value.open(data);
         } else {
             console.log("Modal [" + name + "] is not registered.")
         }

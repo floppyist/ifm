@@ -9,6 +9,7 @@ import IFMTable from '@/components/IFMTable.vue';
 import Footer from '@/components/Footer.vue';
 
 import NewFileModal from '@/components/modals/NewFileModal.vue';
+import EditFileModal from '@/components/modals/EditFileModal.vue';
 import NewDirModal from '@/components/modals/NewDirModal.vue';
 import TasksModal from '@/components/modals/TasksModal.vue';
 
@@ -16,6 +17,7 @@ const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
 
 const newFileModal = ref(null);
+const editFileModal = ref(null);
 const newDirModal = ref(null);
 const tasksModal = ref(null);
 
@@ -26,6 +28,7 @@ onMounted(() => {
     window.addEventListener('keydown', handleGlobalKeys);
 
     modalsStore.registerModal('newFile', newFileModal.value);
+    modalsStore.registerModal('editFile', editFileModal.value);
     modalsStore.registerModal('newDir', newDirModal.value);
     modalsStore.registerModal('tasks', tasksModal.value);
 
@@ -83,7 +86,6 @@ function handleGlobalKeys(e) {
                 }
                 break;
         }
-
     }
 };
 </script>
@@ -100,6 +102,7 @@ function handleGlobalKeys(e) {
 
         <!-- Modals -->
         <NewFileModal ref="newFileModal" />
+        <EditFileModal ref="editFileModal" />
         <NewDirModal ref="newDirModal" />
         <TasksModal ref="tasksModal" />
     </main>

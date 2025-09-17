@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
+
 import { useFilesStore } from '@/stores/FilesStore.js';
+import { useModalsStore } from '@/stores/ModalsStore.js';
 
 import {
     DocumentIcon,
@@ -20,6 +22,7 @@ const downloadIcons = {
 }
 
 const filesStore = useFilesStore();
+const modalsStore = useModalsStore();
 
 const scrollContainer = ref(null);
 const itemHeight = 50;
@@ -74,14 +77,9 @@ async function handleFileNavigation(file) {
             }
 
             if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
-
             break;
         case 'file':
-            // TODO: Not finished yet; just for testing
-            const content = await filesStore.getFileContent(file);
-
-            console.log(content);
-
+            modalsStore.openModal('editFile', file);
             break;
         default: 
             break;

@@ -5,12 +5,13 @@ import { useWorkerStore } from './WorkerStore';
 import fileLoader from '@/workers/fileLoader.js?raw';
 import contentLoader from '@/workers/contentLoader.js?raw';
 import fileCreationWorker from '@/workers/fileCreationWorker.js?raw';
+import fileEditWorker from '@/workers/fileEditWorker.js?raw';
 import dirCreationWorker from '@/workers/dirCreationWorker.js?raw';
 import downLoader from '@/workers/downLoader.js?raw';
 
 export const useFilesStore = defineStore('files', () => {
     /* State */
-    const files = ref([]);
+    const files = ref(new Map());
     const selectedFiles = ref(new Set());
     const currentPath = ref('');
     const search = ref('');
@@ -20,7 +21,8 @@ export const useFilesStore = defineStore('files', () => {
 
     /* Getters */
     const filteredFiles = computed(() => {
-        return files.value.filter(f => f.name.toLowerCase().includes(search.value));
+        return Array.from(files.value.values())
+            .filter(f => f.name.toLowerCase().includes(search.value.toLowerCase()));
     });
 
     /* Actions */
@@ -31,13 +33,17 @@ export const useFilesStore = defineStore('files', () => {
         const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await workerStore.executeTask(workerURL, { 
-                dir, 
-                url: window.location.href 
+            const res = await workerStore.executeTask(workerURL, {
+                dir,
+                url: window.location.href
             });
 
-            files.value = res.map(f => reactive(f));
+            const newMap = new Map();
+            for (const f of res) {
+                newMap.set(f.name, reactive(f));
+            }
 
+            files.value = newMap;
             selectedFiles.value = new Set();
             currentPath.value = dir;
         } catch (err) {
@@ -45,7 +51,7 @@ export const useFilesStore = defineStore('files', () => {
         } finally {
             isLoading.value = false;
         }
-    };
+    }
 
     async function refresh() {
         await getFiles(currentPath.value);
@@ -76,7 +82,7 @@ export const useFilesStore = defineStore('files', () => {
         } finally {
             isLoading.value = false;
         }
-    };
+    }
 
     async function createFile(filename, content, override=false) {
         const blob = new Blob([fileCreationWorker], { type: 'application/javascript' });
@@ -85,16 +91,58 @@ export const useFilesStore = defineStore('files', () => {
         try {
             const res = await workerStore.executeTask(workerURL, {
                 dir: currentPath.value,
-                filename: filename,
-                content: content,
-                override: override,
+                filename,
+                content,
+                override,
                 url: window.location.href,
             });
 
             if (res.status === 'OK') {
-                if (!override) {
-                    files.value.unshift(res.fileData) 
+                // Rebuild map to show new files at the top of the table
+                files.value = new Map([[res.fileData.name, reactive(res.fileData)], ...files.value]);
+            } else {
+                throw new Error(res.message);
+            }
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    async function editFile(filename, newname='', content, override=false) {
+        const blob = new Blob([fileEditWorker], { type: 'application/javascript' });
+        const workerURL = URL.createObjectURL(blob);
+
+        try {
+            const res = await workerStore.executeTask(workerURL, {
+                dir: currentPath.value,
+                filename,
+                newname,
+                content,
+                override,
+                url: window.location.href,
+            });
+
+            if (res.status === 'OK') {
+                const existing = files.value.get(filename);
+                let rebuild = true;
+
+                if (!existing) {
+                    // New name isnt existing so just add
+                    files.value.set(res.fileData.name, reactive(res.fileData));
+                } else if (filename === res.fileData.name) {
+                    // Copy all properties/fields from "existing" into the main files data map to prevent
+                    // files that have not been renamed from moving up in order
+                    Object.assign(existing, reactive(res.fileData));
+
+                    rebuild = false;
+                } else {
+                    files.value.delete(filename);
+                    files.value.set(res.fileData.name, reactive(res.fileData));
                 }
+
+                if (rebuild)
+                    // Rebuild map to show renamed files at the top of the table
+                    files.value = new Map([[res.fileData.name, reactive(res.fileData)], ...files.value]);
             } else {
                 throw new Error(res.message);
             }
@@ -110,19 +158,20 @@ export const useFilesStore = defineStore('files', () => {
         try {
             const res = await workerStore.executeTask(workerURL, {
                 dir: currentPath.value,
-                dirname: dirname,
+                dirname,
                 url: window.location.href,
             });
 
             if (res.status === 'OK') {
-                files.value.unshift(res.fileData);
+                // Rebuild map to show new directories at the top of the table
+                files.value = new Map([[res.fileData.name, reactive(res.fileData)], ...files.value]);
             } else {
                 throw new Error(res.message);
             }
         } catch (err) {
             throw err;
         }
-    };
+    }
 
     async function downloadFile(file) {
         const blob = new Blob([downLoader], { type: 'application/javascript'} );
@@ -143,23 +192,21 @@ export const useFilesStore = defineStore('files', () => {
                 document.body.appendChild(link);
                 link.click();
                 link.remove();
-
                 URL.revokeObjectURL(link.href);
             }
         } catch (err) {
             console.log('Worker error:', err);
         }
-    };
+    }
 
     async function changePath(dir) {
         currentPath.value = dir;
-
         await getFiles(dir);
-    };
+    }
 
     function setSearch(query) {
         search.value = query;
-    };
+    }
 
     return {
         /* State */
@@ -175,6 +222,7 @@ export const useFilesStore = defineStore('files', () => {
         refresh,
         getFileContent,
         createFile,
+        editFile,
         createDir,
         downloadFile,
         changePath,
