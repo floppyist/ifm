@@ -1,8 +1,10 @@
 <script setup>
 import { ref, nextTick } from 'vue';
+
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
 
+/* Stores */
 const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
 
@@ -25,20 +27,21 @@ async function createDirAndClose() {
     } catch (err) {
         error.value = err.message;
     }
-};
+}
 
+/* Modal specific stuff */
 function open() {
     modal.value.show();
     nextTick(() => input.value.focus());
     isOpen.value = true;
-};
+}
 
 function close() {
     dirname.value = '';
     error.value = '';
     modal.value.close();
     isOpen.value = false;
-};
+}
 
 const isOpen = ref(false);
 

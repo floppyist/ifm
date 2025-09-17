@@ -4,15 +4,18 @@ import { ref, onMounted } from 'vue';
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
 
+/* Components */
 import Navbar from '@/components/Navbar.vue';
 import IFMTable from '@/components/IFMTable.vue';
 import Footer from '@/components/Footer.vue';
 
+/* Modals */
 import NewFileModal from '@/components/modals/NewFileModal.vue';
 import EditFileModal from '@/components/modals/EditFileModal.vue';
 import NewDirModal from '@/components/modals/NewDirModal.vue';
 import TasksModal from '@/components/modals/TasksModal.vue';
 
+/* Stores */
 const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
 
@@ -21,6 +24,7 @@ const editFileModal = ref(null);
 const newDirModal = ref(null);
 const tasksModal = ref(null);
 
+/* Check for double-press shortcuts like "gg" */
 let lastKey = null;
 let timeout = null;
 
@@ -32,6 +36,7 @@ onMounted(() => {
     modalsStore.registerModal('newDir', newDirModal.value);
     modalsStore.registerModal('tasks', tasksModal.value);
 
+    /* Register event listeners in ModalsStore to control them while opening modals which have their own */
     modalsStore.setRemoveEventListenerCallback(() => {
         window.removeEventListener('keydown', handleGlobalKeys);
     });
@@ -39,7 +44,7 @@ onMounted(() => {
     modalsStore.setAddEventListenerCallback(() => {
         window.addEventListener('keydown', handleGlobalKeys);
     });
-});
+})
 
 function handleGlobalKeys(e) {
     const active = document.activeElement;
@@ -87,7 +92,7 @@ function handleGlobalKeys(e) {
                 break;
         }
     }
-};
+}
 </script>
 
 <template>

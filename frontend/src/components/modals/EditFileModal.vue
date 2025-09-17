@@ -1,8 +1,11 @@
 <script setup>
 import { ref, nextTick, computed } from 'vue';
+
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
 
+/* TODO: Move the ACE Editor to a separate component to reduce overhead */
+/* ACE Editor stuff */
 import { VAceEditor } from 'vue3-ace-editor';
 import 'ace-builds/src-min-noconflict/mode-json';
 import 'ace-builds/src-min-noconflict/mode-javascript';
@@ -11,8 +14,9 @@ import 'ace-builds/src-min-noconflict/theme-chrome';
 const modeMap = {
     'json': 'json',
     'js': 'javascript',
-}
+};
 
+/* Stores */
 const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
 
@@ -24,6 +28,7 @@ const newname = ref('');
 const content = ref('');
 const error = ref('');
 
+/* Used to set visibility of the override button */
 const overrideFlag = ref(false);
 
 async function editFileAndClose(override) {
@@ -40,17 +45,20 @@ async function editFileAndClose(override) {
         overrideFlag.value = true;
         error.value = err.message;
     }
-};
+}
 
+/* Sets the ACE Editor Mode to the given extension */
 function getModeByExtension(filename) { 
     const ext = filename.split('.').pop(); 
     return modeMap[ext] || 'text'; 
-};
+}
 
+/* Determines whether the respective extension is available for each entry */
 const editorMode = computed(() => {
     return getModeByExtension(filename.value);
 });
 
+/* Modal specific stuff */
 async function open(file) {
     filename.value = file.name;
     content.value = await filesStore.getFileContent(file);
@@ -58,7 +66,7 @@ async function open(file) {
     modal.value.show();
     nextTick(() => input.value.focus());
     isOpen.value = true;
-};
+}
 
 function close() {
     filename.value = '';
@@ -68,7 +76,7 @@ function close() {
     overrideFlag.value = false;
     modal.value.close();
     isOpen.value = false;
-};
+}
 
 const isOpen = ref(false);
 

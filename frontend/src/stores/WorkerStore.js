@@ -1,5 +1,6 @@
-import { defineStore } from 'pinia';
 import { ref, reactive } from 'vue';
+
+import { defineStore } from 'pinia';
 
 export const useWorkerStore = defineStore('worker', () => {
     /* State */

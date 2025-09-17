@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
 
+/* Icons */
 import { 
     ArrowPathIcon, 
     ArrowUpTrayIcon, 
@@ -12,6 +13,7 @@ import {
     Bars3Icon,
 } from '@heroicons/vue/24/outline';
 
+/* Stores */
 const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
 

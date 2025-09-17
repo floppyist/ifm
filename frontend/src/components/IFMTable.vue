@@ -4,6 +4,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
 
+/* Icons */
 import {
     DocumentIcon,
     FolderIcon,
@@ -16,42 +17,50 @@ import {
     EllipsisHorizontalIcon,
 } from '@heroicons/vue/24/solid';
 
-const downloadIcons = {
-    dir: CloudArrowDownIcon,
-    file:  ArrowDownTrayIcon,
-}
-
+/* Stores */
 const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
 
+/* Used to determine the correct icon to display */
+const downloadIcons = {
+    dir: CloudArrowDownIcon,
+    file:  ArrowDownTrayIcon,
+};
+
 const scrollContainer = ref(null);
+
+/* Fixed height for table rows to calculate total table height correctly */
 const itemHeight = 50;
 const buffer = 20;
-
 const scrollTop = ref(0);
 const containerHeight = ref(0);
 
+/* Dummy folder to handle upward path navigation */
 const dblDotFolder = {
     name: '..', 
     type: 'dir', 
 }
 
 onMounted(() => {
+    /* Fetch all files from backend in root directory at first */
     filesStore.getFiles();
 
     containerHeight.value = scrollContainer.value.clientHeight;
-});
+})
 
+/* Virtual scrolling */
 function onScroll() {
-    // Using RequestAnimationFrame to update frame by frame
+    /* Using RequestAnimationFrame to update frame by frame */
     requestAnimationFrame(() => {
         scrollTop.value = scrollContainer.value.scrollTop;
     });
-};
+}
 
+/* Calculation of indices to obtain the range of rows to be rendered */
 const startIndex = computed(() => Math.floor(scrollTop.value / itemHeight) - buffer);
 const endIndex = computed(() => Math.ceil((scrollTop.value + containerHeight.value) / itemHeight) + buffer);
 
+/* Get a slice of the lines to be rendered instead of rendering everything at once */
 const visibleFiles = computed(() => {
     const start = Math.max(0, startIndex.value);
     const end = Math.min(filesStore.filteredFiles.length, endIndex.value);
@@ -59,23 +68,35 @@ const visibleFiles = computed(() => {
     return filesStore.filteredFiles.slice(start, end);
 });
 
+/* 
+ * The spacers ensure that when scrolling all the way to the top or bottom, the entire table is 
+ * accounted for, not just the rows that are currently rendered (e.g. vim controls)
+ */
 const topSpacer = computed(() => Math.max(0, startIndex.value) * itemHeight);
 const bottomSpacer = computed(() => Math.max(0, filesStore.filteredFiles.length - endIndex.value) * itemHeight);
 
+/* 
+ * General navigation handling
+ *
+ * changePath directly triggers the retrieval of the new data from the backend in the new directory
+ */
 async function handleFileNavigation(file) {
     switch (file.type) {
         case 'dir':
             if (file.name === '..') {
+                /* Cut path with "/" into slices and remove the last one => upward navigation */
                 filesStore.changePath(filesStore.currentPath.substring(0, filesStore.currentPath.lastIndexOf('/')));
-
             } else {
                 if (filesStore.currentPath === '') {
+                    /* If in root dir, then just take dirname as next path */
                     filesStore.changePath(file.name);
                 } else {
+                    /* Extend path if not in root dir */
                     filesStore.changePath(filesStore.currentPath + '/' + file.name);
                 }
             }
 
+            /* Always scroll top if new directory is loaded and rendered */
             if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
             break;
         case 'file':
@@ -84,8 +105,9 @@ async function handleFileNavigation(file) {
         default: 
             break;
     }
-};
+}
 
+/* Allows the individual selection of multiple files */
 function toggleFileSelection(file, event) {
     if (event.ctrlKey || event.type === 'dblclick') {
         if (filesStore.selectedFiles.has(file)) {
@@ -94,16 +116,16 @@ function toggleFileSelection(file, event) {
             filesStore.selectedFiles.add(file);
         }
     }
-};
+}
 
 function getDownloadIcon(type) {
     return downloadIcons[type] || DocumentIcon;
 }
 
 watch(() => filesStore.search, () => {
-    // NOTE: A bit hacky, but prevents longer filtering of elements (search) if the user has previously scrolled to the end
+    /* NOTE: A bit hacky, but prevents longer filtering of elements (search) if the user has previously scrolled to the end */
     if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
-});
+})
 </script>
 
 <template>

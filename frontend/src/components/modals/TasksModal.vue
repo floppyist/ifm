@@ -1,31 +1,21 @@
 <script setup>
 import { ref, nextTick } from 'vue';
+
 import { useModalsStore } from '@/stores/ModalsStore.js';
 import { useWorkerStore } from '@/stores/WorkerStore.js';
 
+/* Icons */
 import { 
     XCircleIcon, 
 } from '@heroicons/vue/24/solid';
 
+/* Stores */
 const modalsStore = useModalsStore();
 const workerStore = useWorkerStore();
 
 const modal = ref(null);
 
 const error = ref('');
-
-function open() {
-    modal.value.show();
-    nextTick(() => modal.value.focus());
-    isOpen.value = true;
-};
-
-function close() {
-    modal.value.close();
-    isOpen.value = false;
-};
-
-const isOpen = ref(false);
 
 function getStatusColor(task) {
     switch (task.status) {
@@ -36,6 +26,20 @@ function getStatusColor(task) {
         default: '';
     }
 }
+
+/* Modal specific stuff */
+function open() {
+    modal.value.show();
+    nextTick(() => modal.value.focus());
+    isOpen.value = true;
+}
+
+function close() {
+    modal.value.close();
+    isOpen.value = false;
+}
+
+const isOpen = ref(false);
 
 defineExpose({ open, close, isOpen });
 </script>

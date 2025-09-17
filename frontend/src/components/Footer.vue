@@ -2,6 +2,7 @@
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useWorkerStore } from '@/stores/WorkerStore.js';
 
+/* Stores */
 const filesStore = useFilesStore();
 const workerStore = useWorkerStore();
 </script>

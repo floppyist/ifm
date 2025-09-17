@@ -1,7 +1,10 @@
 import { ref, reactive, computed } from 'vue';
+
 import { defineStore } from 'pinia';
+
 import { useWorkerStore } from './WorkerStore';
 
+/* Workers */
 import fileLoader from '@/workers/fileLoader.js?raw';
 import contentLoader from '@/workers/contentLoader.js?raw';
 import fileCreationWorker from '@/workers/fileCreationWorker.js?raw';
@@ -17,10 +20,12 @@ export const useFilesStore = defineStore('files', () => {
     const search = ref('');
     const isLoading = ref(false);
 
+    /* Stores */
     const workerStore = useWorkerStore();
 
     /* Getters */
     const filteredFiles = computed(() => {
+        /* Treat map temporarily as array for filtering (search) */
         return Array.from(files.value.values())
             .filter(f => f.name.toLowerCase().includes(search.value.toLowerCase()));
     });
@@ -38,6 +43,7 @@ export const useFilesStore = defineStore('files', () => {
                 url: window.location.href
             });
 
+            /* Reset current map with new one */
             const newMap = new Map();
             for (const f of res) {
                 newMap.set(f.name, reactive(f));
@@ -98,7 +104,7 @@ export const useFilesStore = defineStore('files', () => {
             });
 
             if (res.status === 'OK') {
-                // Rebuild map to show new files at the top of the table
+                /* Rebuild map to show new files at the top of the table */
                 files.value = new Map([[res.fileData.name, reactive(res.fileData)], ...files.value]);
             } else {
                 throw new Error(res.message);
@@ -127,11 +133,13 @@ export const useFilesStore = defineStore('files', () => {
                 let rebuild = true;
 
                 if (!existing) {
-                    // New name isnt existing so just add
+                    /* New name isnt existing so just add */
                     files.value.set(res.fileData.name, reactive(res.fileData));
                 } else if (filename === res.fileData.name) {
-                    // Copy all properties/fields from "existing" into the main files data map to prevent
-                    // files that have not been renamed from moving up in order
+                    /* 
+                     * Copy all properties/fields from "existing" into the main files data map to prevent
+                     * files that have not been renamed from moving up in order
+                    */
                     Object.assign(existing, reactive(res.fileData));
 
                     rebuild = false;
@@ -141,7 +149,7 @@ export const useFilesStore = defineStore('files', () => {
                 }
 
                 if (rebuild)
-                    // Rebuild map to show renamed files at the top of the table
+                    /* Rebuild map to show renamed files at the top of the table */
                     files.value = new Map([[res.fileData.name, reactive(res.fileData)], ...files.value]);
             } else {
                 throw new Error(res.message);
@@ -163,7 +171,7 @@ export const useFilesStore = defineStore('files', () => {
             });
 
             if (res.status === 'OK') {
-                // Rebuild map to show new directories at the top of the table
+                /* Rebuild map to show new directories at the top of the table */
                 files.value = new Map([[res.fileData.name, reactive(res.fileData)], ...files.value]);
             } else {
                 throw new Error(res.message);

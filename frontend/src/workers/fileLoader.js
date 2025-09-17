@@ -19,4 +19,3 @@ self.onmessage = async (e) => {
         self.postMessage({ error: err.message });
     }
 };
-
