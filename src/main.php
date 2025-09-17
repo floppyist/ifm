@@ -468,7 +468,7 @@ f00bar;
 
 	// save a file
 	private function saveFile($d) {
-        if (file_exists($this->pathCombine($d['dir'], $d['filename'])) && $d['override'] == 'false') {
+        if (file_exists($d['filename']) && $d['override'] == 'false') {
             return ["status" => "ERROR", "message" => "File already exists."];
         }
 
