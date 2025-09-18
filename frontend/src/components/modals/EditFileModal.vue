@@ -4,17 +4,7 @@ import { ref, nextTick, computed } from 'vue';
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
 
-/* TODO: Move the ACE Editor to a separate component to reduce overhead */
-/* ACE Editor stuff */
-import { VAceEditor } from 'vue3-ace-editor';
-import 'ace-builds/src-min-noconflict/mode-json';
-import 'ace-builds/src-min-noconflict/mode-javascript';
-import 'ace-builds/src-min-noconflict/theme-chrome';
-
-const modeMap = {
-    'json': 'json',
-    'js': 'javascript',
-};
+import ACEEditor from '@/components/ACEEditor.vue';
 
 /* Stores */
 const filesStore = useFilesStore();
@@ -46,17 +36,6 @@ async function editFileAndClose(override) {
         error.value = err.message;
     }
 }
-
-/* Sets the ACE Editor Mode to the given extension */
-function getModeByExtension(filename) { 
-    const ext = filename.split('.').pop(); 
-    return modeMap[ext] || 'text'; 
-}
-
-/* Determines whether the respective extension is available for each entry */
-const editorMode = computed(() => {
-    return getModeByExtension(newname.value == '' ? filename.value : newname.value);
-});
 
 /* Modal specific stuff */
 async function open(file) {
@@ -105,13 +84,12 @@ defineExpose({ open, close, isOpen });
                 :placeholder="filename"
             />
             <p class="text-xs py-1">{{ 'Path: /' + filesStore.currentPath }}</p>
-            <v-ace-editor
-                v-model:value="content"
-                :lang="editorMode"
-                theme="chrome"
-                style="height: 300px"
+            <ACEEditor 
+                v-model="content"
+                :content="content"
+                :filename="filename"
+                :newname="newname"
             />
-            <p class="text-xs w-full truncate">{{ 'Mode: ' + editorMode }}</p>
             <div v-if="error !== ''" class="flex flex-wrap items-end w-full text-xs break-all text-red-500">{{ error }}</div>
         </div>
 
