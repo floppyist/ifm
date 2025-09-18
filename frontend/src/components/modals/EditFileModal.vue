@@ -55,7 +55,7 @@ function getModeByExtension(filename) {
 
 /* Determines whether the respective extension is available for each entry */
 const editorMode = computed(() => {
-    return getModeByExtension(filename.value);
+    return getModeByExtension(newname.value == '' ? filename.value : newname.value);
 });
 
 /* Modal specific stuff */
