@@ -114,28 +114,28 @@ export const useFilesStore = defineStore('files', () => {
         }
     }
 
-    async function editFile(filename, newname='', content, override=false) {
+    async function editFile(file, newname='', override=false) {
         const blob = new Blob([fileEditWorker], { type: 'application/javascript' });
         const workerURL = URL.createObjectURL(blob);
 
         try {
             const res = await workerStore.executeTask(workerURL, {
                 dir: currentPath.value,
-                filename,
+                filename: file.name,
+                content: file.content,
                 newname,
-                content,
                 override,
                 url: window.location.href,
             });
 
             if (res.status === 'OK') {
-                const existing = files.value.get(filename);
+                const existing = files.value.get(file.name);
                 let rebuild = true;
 
                 if (!existing) {
                     /* New name isnt existing so just add */
                     files.value.set(res.fileData.name, reactive(res.fileData));
-                } else if (filename === res.fileData.name) {
+                } else if (file.name === res.fileData.name) {
                     /* 
                      * Copy all properties/fields from "existing" into the main files data map to prevent
                      * files that have not been renamed from moving up in order
@@ -144,7 +144,7 @@ export const useFilesStore = defineStore('files', () => {
 
                     rebuild = false;
                 } else {
-                    files.value.delete(filename);
+                    files.value.delete(file.name);
                     files.value.set(res.fileData.name, reactive(res.fileData));
                 }
 

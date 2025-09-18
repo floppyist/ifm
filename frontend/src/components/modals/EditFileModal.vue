@@ -13,9 +13,8 @@ const modalsStore = useModalsStore();
 const modal = ref(null);
 const input = ref(null);
 
-const filename = ref('');
+const file = ref(null);
 const newname = ref('');
-const content = ref('');
 const error = ref('');
 
 /* Used to set visibility of the override button */
@@ -28,7 +27,7 @@ async function editFileAndClose(override) {
     }
 
     try {
-        await filesStore.editFile(filename.value, newname.value, content.value, override);
+        await filesStore.editFile(file.value, newname.value, override);
         modalsStore.closeModal('editFile');
         error.value = '';
     } catch (err) {
@@ -38,9 +37,9 @@ async function editFileAndClose(override) {
 }
 
 /* Modal specific stuff */
-async function open(file) {
-    filename.value = file.name;
-    content.value = await filesStore.getFileContent(file);
+async function open(data) {
+    file.value = data;
+    file.value.content = await filesStore.getFileContent(file.value);
 
     modal.value.show();
     nextTick(() => input.value.focus());
@@ -48,9 +47,7 @@ async function open(file) {
 }
 
 function close() {
-    filename.value = '';
     newname.value = '';
-    content.value = '';
     error.value = '';
     overrideFlag.value = false;
     modal.value.close();
@@ -74,20 +71,20 @@ defineExpose({ open, close, isOpen });
         </div>
 
         <!-- Body -->
-        <div class="flex flex-col pt-3">
+        <div v-if="file" class="flex flex-col pt-3">
             <input 
                 ref="input"
                 v-model="newname" 
                 @keydown.enter="editFileAndClose(false)"
                 class="w-full focus:outline-none rounded-sm bg-slate-600 pl-2" 
                 type="text" 
-                :placeholder="filename"
+                :placeholder="file.name"
             />
             <p class="text-xs py-1">{{ 'Path: /' + filesStore.currentPath }}</p>
             <ACEEditor 
-                v-model="content"
-                :content="content"
-                :filename="filename"
+                v-model="file.content"
+                :content="file.content"
+                :filename="file.name"
                 :newname="newname"
             />
             <div v-if="error !== ''" class="flex flex-wrap items-end w-full text-xs break-all text-red-500">{{ error }}</div>
