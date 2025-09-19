@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, computed } from 'vue';
+import { ref, nextTick } from 'vue';
 
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
@@ -31,6 +31,7 @@ async function editFileAndClose(override) {
         modalsStore.closeModal('editFile');
         error.value = '';
     } catch (err) {
+        nextTick(() => input.value.focus());
         overrideFlag.value = true;
         error.value = err.message;
     }
@@ -72,14 +73,24 @@ defineExpose({ open, close, isOpen });
 
         <!-- Body -->
         <div v-if="file" class="flex flex-col pt-3">
-            <input 
-                ref="input"
-                v-model="newname" 
-                @keydown.enter="editFileAndClose(false)"
-                class="w-full focus:outline-none rounded-sm bg-slate-600 pl-2" 
-                type="text" 
-                :placeholder="file.name"
-            />
+            <div class="flex flex-row gap-2">
+                <input 
+                    ref="input"
+                    v-model="newname" 
+                    @keydown.enter="editFileAndClose(false)"
+                    @input="overrideFlag = false"
+                    class="w-full focus:outline-none rounded-sm bg-slate-600 pl-2" 
+                    :class="overrideFlag ? 'ring-2 ring-red-500' : ''"
+                    type="text" 
+                    :placeholder="file.name"
+                />
+                <button 
+                    v-if="overrideFlag"
+                    @click="editFileAndClose(true)"
+                    class="px-1 rounded-sm bg-yellow-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
+                    Override
+                </button>
+            </div>
             <p class="text-xs py-1">{{ 'Path: /' + filesStore.currentPath }}</p>
             <ACEEditor 
                 v-model="file.content"
@@ -96,12 +107,6 @@ defineExpose({ open, close, isOpen });
                 @click="editFileAndClose(false)"
                 class="px-1 rounded-sm bg-green-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
                 Save
-            </button>
-            <button 
-                v-if="overrideFlag"
-                @click="editFileAndClose(true)"
-                class="px-1 rounded-sm bg-yellow-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
-                Override
             </button>
             <button 
                 @click="modalsStore.closeModal('editFile')"

@@ -5,7 +5,7 @@ self.onmessage = async (e) => {
     params.append('api', 'editFile');
     params.append('dir', dir);
     params.append('filename', filename);
-    params.append('newname', newname);
+    params.append('newname', newname === filename ? '' : newname);
     params.append('content', content );
     params.append('override', override);
 

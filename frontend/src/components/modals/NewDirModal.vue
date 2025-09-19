@@ -14,6 +14,9 @@ const input = ref(null);
 const dirname = ref('');
 const error = ref('');
 
+/* Used to display the red ring around the input in case of an error */
+const existsFlag = ref(false);
+
 async function createDirAndClose() {
     if (filesStore.isLoading) {
         error.value = 'Wait until the table has loaded...'
@@ -25,6 +28,8 @@ async function createDirAndClose() {
         modalsStore.closeModal('newDir');
         error.value = '';
     } catch (err) {
+        nextTick(() => input.value.focus());
+        existsFlag.value = true;
         error.value = err.message;
     }
 }
@@ -39,6 +44,7 @@ function open() {
 function close() {
     dirname.value = '';
     error.value = '';
+    existsFlag.value = false;
     modal.value.close();
     isOpen.value = false;
 }
@@ -65,7 +71,9 @@ defineExpose({ open, close, isOpen });
                 ref="input"
                 v-model="dirname" 
                 @keydown.enter="createDirAndClose"
+                @input="existsFlag = false"
                 class="w-full focus:outline-none rounded-sm bg-slate-600 pl-2" 
+                :class="existsFlag ? 'ring-2 ring-red-500' : ''"
                 type="text" 
                 placeholder="Dirname"
             />

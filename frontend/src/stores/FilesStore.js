@@ -104,8 +104,7 @@ export const useFilesStore = defineStore('files', () => {
             });
 
             if (res.status === 'OK') {
-                /* Rebuild map to show new files at the top of the table */
-                files.value = new Map([[res.fileData.name, reactive(res.fileData)], ...files.value]);
+                files.value.set(res.fileData.name, reactive(res.fileData));
             } else {
                 throw new Error(res.message);
             }
@@ -147,10 +146,6 @@ export const useFilesStore = defineStore('files', () => {
                     files.value.delete(file.name);
                     files.value.set(res.fileData.name, reactive(res.fileData));
                 }
-
-                if (rebuild)
-                    /* Rebuild map to show renamed files at the top of the table */
-                    files.value = new Map([[res.fileData.name, reactive(res.fileData)], ...files.value]);
             } else {
                 throw new Error(res.message);
             }
@@ -171,8 +166,7 @@ export const useFilesStore = defineStore('files', () => {
             });
 
             if (res.status === 'OK') {
-                /* Rebuild map to show new directories at the top of the table */
-                files.value = new Map([[res.fileData.name, reactive(res.fileData)], ...files.value]);
+                files.value.set(res.fileData.name, reactive(res.fileData));
             } else {
                 throw new Error(res.message);
             }

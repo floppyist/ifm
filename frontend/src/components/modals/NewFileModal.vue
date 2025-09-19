@@ -1,5 +1,5 @@
 <script setup>
-import { ref, nextTick, computed } from 'vue';
+import { ref, nextTick } from 'vue';
 
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
@@ -31,6 +31,7 @@ async function createFileAndClose(override) {
         modalsStore.closeModal('newFile');
         error.value = '';
     } catch (err) {
+        nextTick(() => input.value.focus());
         overrideFlag.value = true;
         error.value = err.message;
     }
@@ -70,14 +71,24 @@ defineExpose({ open, close, isOpen });
 
         <!-- Body -->
         <div class="flex flex-col pt-3">
-            <input 
-                ref="input"
-                v-model="filename" 
-                @keydown.enter="createFileAndClose(false)"
-                class="w-full focus:outline-none rounded-sm bg-slate-600 pl-2" 
-                type="text" 
-                placeholder="filename"
-            />
+            <div class="flex flex-row gap-2">
+                <input 
+                    ref="input"
+                    v-model="filename" 
+                    @keydown.enter="createFileAndClose(false)"
+                    @input="overrideFlag = false"
+                    class="w-full focus:outline-none rounded-sm bg-slate-600 pl-2" 
+                    :class="overrideFlag ? 'ring-2 ring-red-500' : ''"
+                    type="text" 
+                    placeholder="filename"
+                />
+                <button 
+                    v-if="overrideFlag"
+                    @click="createFileAndClose(true)"
+                    class="px-1 rounded-sm bg-yellow-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
+                    Override
+                </button>
+            </div>
             <p class="text-xs py-1">{{ 'Path: /' + filesStore.currentPath }}</p>
             <ACEEditor 
                 v-model="content"
@@ -92,12 +103,6 @@ defineExpose({ open, close, isOpen });
                 @click="createFileAndClose(false)"
                 class="px-1 rounded-sm bg-green-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
                 Create
-            </button>
-            <button 
-                v-if="overrideFlag"
-                @click="createFileAndClose(true)"
-                class="px-1 rounded-sm bg-yellow-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
-                Override
             </button>
             <button 
                 @click="modalsStore.closeModal('newFile')"
