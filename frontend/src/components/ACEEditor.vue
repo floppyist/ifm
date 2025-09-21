@@ -35,7 +35,7 @@ const editorMode = computed(() => {
         v-model:value="content"
         :lang="editorMode"
         theme="chrome"
-        style="height: 300px"
+        class="flex-1 w-full"
     />
     <p class="text-xs w-full truncate">{{ 'Mode: ' + editorMode }}</p>
 </template>

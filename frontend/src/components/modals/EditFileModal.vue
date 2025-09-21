@@ -19,6 +19,7 @@ const error = ref('');
 
 /* Used to set visibility of the override button */
 const overrideFlag = ref(false);
+const fullscreenFlag = ref(false);
 
 async function editFileAndClose(override) {
     if (filesStore.isLoading) {
@@ -51,6 +52,7 @@ function close() {
     newname.value = '';
     error.value = '';
     overrideFlag.value = false;
+    fullscreenFlag.value = false;
     modal.value.close();
     isOpen.value = false;
 }
@@ -62,57 +64,69 @@ defineExpose({ open, close, isOpen });
 
 <template>
     <!-- Modal -->
-    <dialog @keydown.esc="modalsStore.closeModal('editFile') "ref="modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-slate-700 text-slate-300 rounded-lg shadow-xl/30 w-[400px] z-1">
-        <!-- Header -->
-        <div class="flex justify-between items-center">
-            <h2 class="text-xl font-bold">
-                Edit File
-            </h2>
-            <button @click="modalsStore.closeModal('editFile')" class="hover:text-red-500 text-xl bg-slate-600 rounded-lg px-2 cursor-pointer">&times;</button>
-        </div>
+    <dialog 
+        @keydown.esc="modalsStore.closeModal('editFile') 
+        "ref="modal" 
+        :class="fullscreenFlag ? 'w-full h-full' : ''"
+        class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-slate-700 text-slate-300 rounded-lg shadow-xl/30 w-[400px] z-1">
+        <div class="flex flex-col h-full">
+            <!-- Header -->
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold">
+                    Edit File
+                </h2>
+                <div class="flex gap-1">
+                    <button @click="fullscreenFlag = !fullscreenFlag" class="hover:text-red-500 text-xl bg-slate-600 rounded-lg px-2 cursor-pointer">
+                        {{ fullscreenFlag ? '&minus;' : '&plus;'}}
+                    </button>
+                    <button @click="modalsStore.closeModal('editFile')" class="hover:text-red-500 text-xl bg-slate-600 rounded-lg px-2 cursor-pointer">&times;</button>
+                </div>
+            </div>
 
-        <!-- Body -->
-        <div v-if="file" class="flex flex-col pt-3">
-            <div class="flex flex-row gap-2">
-                <input 
-                    ref="input"
-                    v-model="newname" 
-                    @keydown.enter="editFileAndClose(false)"
-                    @input="overrideFlag = false"
-                    class="w-full focus:outline-none rounded-sm bg-slate-600 pl-2" 
-                    :class="overrideFlag ? 'ring-2 ring-red-500' : ''"
-                    type="text" 
-                    :placeholder="file.name"
+            <!-- Body -->
+            <div v-if="file" class="flex flex-1 flex-col pt-3 min-h-[300px]">
+                <div class="flex flex-row gap-2">
+                    <input 
+                        ref="input"
+                        v-model="newname" 
+                        @keydown.enter="editFileAndClose(false)"
+                        @input="overrideFlag = false"
+                        class="w-full focus:outline-none rounded-sm bg-slate-600 pl-2" 
+                        :class="overrideFlag ? 'ring-2 ring-red-500' : ''"
+                        type="text" 
+                        :placeholder="file.name"
+                    />
+                    <button 
+                        v-if="overrideFlag"
+                        @click="editFileAndClose(true)"
+                        class="px-1 rounded-sm bg-yellow-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
+                        Override
+                    </button>
+                </div>
+                <p class="text-xs py-1">{{ 'Path: /' + filesStore.currentPath }}</p>
+                <ACEEditor 
+                    v-model="file.content"
+                    :content="file.content"
+                    :filename="file.name"
+                    :newname="newname"
+                    class="flex-1"
                 />
+                <div v-if="error !== ''" class="flex flex-wrap items-end w-full text-xs break-all text-red-500">{{ error }}</div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex gap-2 justify-end text-white text-lg pt-3 border-t-1 border-slate-500">
                 <button 
-                    v-if="overrideFlag"
-                    @click="editFileAndClose(true)"
-                    class="px-1 rounded-sm bg-yellow-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
-                    Override
+                    @click="editFileAndClose(false)"
+                    class="px-1 rounded-sm bg-green-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
+                    Save
+                </button>
+                <button 
+                    @click="modalsStore.closeModal('editFile')"
+                    class="px-1 rounded-sm bg-red-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
+                    Cancel
                 </button>
             </div>
-            <p class="text-xs py-1">{{ 'Path: /' + filesStore.currentPath }}</p>
-            <ACEEditor 
-                v-model="file.content"
-                :content="file.content"
-                :filename="file.name"
-                :newname="newname"
-            />
-            <div v-if="error !== ''" class="flex flex-wrap items-end w-full text-xs break-all text-red-500">{{ error }}</div>
-        </div>
-
-        <!-- Footer -->
-        <div class="flex gap-2 justify-end text-white text-lg pt-3 border-t-1 border-slate-500">
-            <button 
-                @click="editFileAndClose(false)"
-                class="px-1 rounded-sm bg-green-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
-                Save
-            </button>
-            <button 
-                @click="modalsStore.closeModal('editFile')"
-                class="px-1 rounded-sm bg-red-500 hover:ring-2 hover:ring-yellow-400 cursor-pointer">
-                Cancel
-            </button>
         </div>
     </dialog>
 </template>
