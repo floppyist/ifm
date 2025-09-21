@@ -20,6 +20,9 @@ export const useFilesStore = defineStore('files', () => {
     const search = ref('');
     const isLoading = ref(false);
 
+    /* Used to add debounce for search */
+    let searchTimeout;
+
     /* Stores */
     const workerStore = useWorkerStore();
 
@@ -138,7 +141,7 @@ export const useFilesStore = defineStore('files', () => {
                     /* 
                      * Copy all properties/fields from "existing" into the main files data map to prevent
                      * files that have not been renamed from moving up in order
-                    */
+                     */
                     Object.assign(existing, reactive(res.fileData));
 
                     rebuild = false;
@@ -207,7 +210,11 @@ export const useFilesStore = defineStore('files', () => {
     }
 
     function setSearch(query) {
-        search.value = query;
+        clearTimeout(searchTimeout);
+
+        searchTimeout = setTimeout(() => {
+            search.value = query;
+        }, 300);
     }
 
     return {
