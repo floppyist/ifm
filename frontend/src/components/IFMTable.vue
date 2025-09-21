@@ -35,6 +35,8 @@ const buffer = 20;
 const scrollTop = ref(0);
 const containerHeight = ref(0);
 
+let ascending = true;
+
 /* Dummy folder to handle upward path navigation */
 const dblDotFolder = {
     name: '..', 
@@ -122,6 +124,13 @@ function getDownloadIcon(type) {
     return downloadIcons[type] || DocumentIcon;
 }
 
+function sortBy(key) {
+    ascending = !ascending;
+
+    filesStore.sorting.key = key;
+    filesStore.sorting.ascending = ascending;
+}
+
 watch(() => filesStore.search, () => {
     /* NOTE: A bit hacky, but prevents longer filtering of elements (search) if the user has previously scrolled to the end */
     if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
@@ -133,12 +142,32 @@ watch(() => filesStore.search, () => {
         <!-- Header -->
         <div class="flex border-b border-gray-300 bg-slate-300 text-gray-700 h-[50px] items-center text-xl">
             <div class="w-10"></div>
-            <div class="flex-1">Filename</div>
+            <div class="flex-1">
+                <p @click="sortBy('name')" class="w-max cursor-pointer select-none">
+                    Filename
+                </p>
+            </div>
             <div class="w-10"></div>
-            <div class="w-24">Size</div>
-            <div class="w-32 justify-center hidden sm:flex">Permissions</div>
-            <div class="w-24 justify-center hidden md:flex">Owner</div>
-            <div class="w-24 justify-center hidden lg:flex">Group</div>
+            <div class="w-24">
+                <p @click="sortBy('size')" class="w-max cursor-pointer select-none">
+                    Size
+                </p>
+            </div>
+            <div class="w-32 justify-center hidden sm:flex">
+                <p @click="sortBy('fileperms')" class="w-max cursor-pointer select-none">
+                    Permissions
+                </p>
+            </div>
+            <div class="w-24 justify-center hidden md:flex">
+                <p @click="sortBy('owner')" class="w-max cursor-pointer select-none">
+                    Owner
+                </p>
+            </div>
+            <div class="w-24 justify-center hidden lg:flex">
+                <p @click="sortBy('group')" class="w-max cursor-pointer select-none">
+                    Group
+                </p>
+            </div>
             <div class="w-10"></div>
         </div>
 

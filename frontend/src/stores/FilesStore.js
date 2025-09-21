@@ -17,7 +17,10 @@ export const useFilesStore = defineStore('files', () => {
     const files = ref(new Map());
     const selectedFiles = ref(new Set());
     const currentPath = ref('');
+
     const search = ref('');
+    const sorting = ref({ key: 'name', ascending: true });
+
     const isLoading = ref(false);
 
     /* Used to add debounce for search */
@@ -30,7 +33,28 @@ export const useFilesStore = defineStore('files', () => {
     const filteredFiles = computed(() => {
         /* Treat map temporarily as array for filtering (search) */
         return Array.from(files.value.values())
-            .filter(f => f.name.toLowerCase().includes(search.value.toLowerCase()));
+            .filter(f => f.name.toLowerCase().includes(search.value.toLowerCase()))
+            .sort((a, b) => {
+                if (a.type !== b.type) {
+                    if (sorting.value.ascending) {
+                        return a.type === 'dir' ? -1 : 1;
+                    } else {
+                        return a.type === 'dir' ? 1 : -1;
+                    }
+                }
+
+                const { key, ascending } = sorting.value;
+
+                let result;
+
+                if (typeof a[key] === 'string') {
+                    result = a[key].localeCompare(b[key]);
+                } else {
+                    result = a[key] - b[key];
+                }
+
+                return ascending ? result : -result;
+            });
     });
 
     /* Actions */
@@ -223,6 +247,7 @@ export const useFilesStore = defineStore('files', () => {
         selectedFiles,
         currentPath,
         search,
+        sorting,
         isLoading,
         /* Getters */
         filteredFiles,
