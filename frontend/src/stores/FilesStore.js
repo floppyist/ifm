@@ -36,11 +36,7 @@ export const useFilesStore = defineStore('files', () => {
             .filter(f => f.name.toLowerCase().includes(search.value.toLowerCase()))
             .sort((a, b) => {
                 if (a.type !== b.type) {
-                    if (sorting.value.ascending) {
-                        return a.type === 'dir' ? -1 : 1;
-                    } else {
-                        return a.type === 'dir' ? 1 : -1;
-                    }
+                    return a.type === 'dir' ? false : true;
                 }
 
                 const { key, ascending } = sorting.value;
