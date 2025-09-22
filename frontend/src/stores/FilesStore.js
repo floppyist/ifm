@@ -35,15 +35,18 @@ export const useFilesStore = defineStore('files', () => {
         return Array.from(files.value.values())
             .filter(f => f.name.toLowerCase().includes(search.value.toLowerCase()))
             .sort((a, b) => {
+                /* Sort directories first and put them always at the top */
                 if (a.type !== b.type) {
-                    return a.type === 'dir' ? false : true;
+                    return a.type === 'dir' ? -1 : 1;
                 }
 
                 const { key, ascending } = sorting.value;
 
                 let result;
 
-                if (typeof a[key] === 'string') {
+                if (key === 'size') {
+                    result = sizeToBytes(a[key]) - sizeToBytes(b[key]);
+                } else if (typeof a[key] === 'string') {
                     result = a[key].localeCompare(b[key]);
                 } else {
                     result = a[key] - b[key];
@@ -235,6 +238,18 @@ export const useFilesStore = defineStore('files', () => {
         searchTimeout = setTimeout(() => {
             search.value = query;
         }, 300);
+    }
+
+    /* Utility functions */
+    function sizeToBytes(sizeString) {
+        const sizeMap = { Byte: 1, KB: 1000, MB: Math.pow(1000, 2), GB: Math.pow(1000, 3) };
+        const regex = /(\d+(?:\.\d+)?)\s*([A-Za-z]+)/;
+
+        let match;
+
+        while ((match = regex.exec(sizeString)) !== null) {
+            return parseFloat(match[1]) * sizeMap[match[2]];
+        }
     }
 
     return {
