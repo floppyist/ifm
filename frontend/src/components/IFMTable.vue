@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue';
+import { ref, onMounted, computed, watch, reactive } from 'vue';
 
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
@@ -112,10 +112,10 @@ async function handleFileNavigation(file) {
 /* Allows the individual selection of multiple files */
 function toggleFileSelection(file, event) {
     if (event.ctrlKey || event.type === 'dblclick') {
-        if (filesStore.selectedFiles.has(file)) {
-            filesStore.selectedFiles.delete(file);
+        if (filesStore.selectedFiles.has(file.name)) {
+            filesStore.selectedFiles.delete(file.name);
         } else {
-            filesStore.selectedFiles.add(file);
+            filesStore.selectedFiles.set(file.name, reactive(file));
         }
     }
 }
@@ -154,7 +154,7 @@ watch(() => filesStore.search, () => {
                 </p>
             </div>
             <div class="w-32 justify-center hidden sm:flex">
-                <p @click="sortBy('fileperms')" class="w-max cursor-pointer select-none">
+                <p class="select-none">
                     Permissions
                 </p>
             </div>
@@ -224,7 +224,7 @@ watch(() => filesStore.search, () => {
             <!-- Data -->
             <div v-for="file in visibleFiles" :key="file.name" 
                 class="flex border-b border-gray-300 h-[50px] items-center hover:bg-[#add8e6]"
-                :class="{ 'bg-green-100': filesStore.selectedFiles.has(file) }"
+                :class="{ 'bg-green-100': filesStore.selectedFiles.has(file.name) }"
                 :style="{ top: itemHeight + 'px' }"
                 @click="toggleFileSelection(file, $event);"
                 @dblclick="toggleFileSelection(file, $event);">

@@ -9,13 +9,14 @@ import fileLoader from '@/workers/fileLoader.js?raw';
 import contentLoader from '@/workers/contentLoader.js?raw';
 import fileCreationWorker from '@/workers/fileCreationWorker.js?raw';
 import fileEditWorker from '@/workers/fileEditWorker.js?raw';
+import fileCopyMoveWorker from '@/workers/fileCopyMoveWorker.js?raw';
 import dirCreationWorker from '@/workers/dirCreationWorker.js?raw';
 import downLoader from '@/workers/downLoader.js?raw';
 
 export const useFilesStore = defineStore('files', () => {
     /* State */
     const files = ref(new Map());
-    const selectedFiles = ref(new Set());
+    const selectedFiles = ref(new Map());
     const currentPath = ref('');
 
     const search = ref('');
@@ -76,7 +77,7 @@ export const useFilesStore = defineStore('files', () => {
             }
 
             files.value = newMap;
-            selectedFiles.value = new Set();
+            selectedFiles.value = new Map();
             currentPath.value = dir;
         } catch (err) {
             console.error('Worker error:', err);
@@ -180,6 +181,33 @@ export const useFilesStore = defineStore('files', () => {
         }
     }
 
+    async function moveCopyFile(destination, action) {
+        const blob = new Blob([fileCopyMoveWorker], { type: 'application/javascript' });
+        const workerURL = URL.createObjectURL(blob);
+
+        try {
+            const res = await workerStore.executeTask(workerURL, {
+                dir: currentPath.value,
+                files: [...selectedFiles.value.values()].map(f => f.name),
+                destination,
+                action,
+                url: window.location.href,
+            });
+
+            if (res.status === 'OK') {
+                for (const f of selectedFiles.value.keys()) {
+                    files.value.delete(f);
+                }
+
+                selectedFiles.value = new Map();
+            } else {
+                throw new Error(res.message);
+            }
+        } catch (err) {
+            throw err;
+        }
+    }
+
     async function createDir(dirname) {
         const blob = new Blob([dirCreationWorker], { type: 'application/javascript' });
         const workerURL = URL.createObjectURL(blob);
@@ -268,6 +296,7 @@ export const useFilesStore = defineStore('files', () => {
         getFileContent,
         createFile,
         editFile,
+        moveCopyFile,
         createDir,
         downloadFile,
         changePath,
