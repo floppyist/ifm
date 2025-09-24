@@ -131,6 +131,18 @@ function sortBy(key) {
     filesStore.sorting.ascending = ascending;
 }
 
+function onFileDragStart(file) {
+    filesStore.selectedFiles.set(file.name, file);
+}
+
+function onFileDrop(file) {
+    if (file.type !== 'dir' || filesStore.selectedFiles.has(file.name)) {
+        return null;
+    }
+
+    filesStore.moveCopyFile(file.name, 'move');
+}
+
 watch(() => filesStore.search, () => {
     /* NOTE: A bit hacky, but prevents longer filtering of elements (search) if the user has previously scrolled to the end */
     if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
@@ -173,13 +185,19 @@ watch(() => filesStore.search, () => {
 
         <!-- Body -->
         <div v-show="!filesStore.isLoading" 
+            ref="scrollContainer"
             id="scrollContainer"
-            class="flex-1 overflow-auto relative scrollbar-hide" ref="scrollContainer" @scroll="onScroll">
+            class="flex-1 overflow-auto relative scrollbar-hide" 
+            @scroll="onScroll">
+                    
             <!-- Top spacer -->
             <div :style="{ height: topSpacer + 'px' }"></div>
 
             <!-- Static dot folder -->
-            <div v-if="filesStore.currentPath !== ''" class="sticky top-0 flex border-b border-gray-300 h-[50px] bg-slate-200 items-center hover:bg-[#add8e6]">
+            <div v-if="filesStore.currentPath !== ''" class="sticky top-0 flex border-b border-gray-300 h-[50px] bg-slate-200 items-center hover:bg-[#add8e6]"
+                @dragover.prevent
+                @drop="onFileDrop(dblDotFolder)">
+
                 <!-- File icon -->
                 <div class="w-10 flex justify-center">
                     <ChevronDoubleUpIcon class="size-5 text-[#337ab7]" />
@@ -224,10 +242,14 @@ watch(() => filesStore.search, () => {
             <!-- Data -->
             <div v-for="file in visibleFiles" :key="file.name" 
                 class="flex border-b border-gray-300 h-[50px] items-center hover:bg-[#add8e6]"
-                :class="{ 'bg-green-100': filesStore.selectedFiles.has(file.name) }"
+                draggable="true"
+                :class="{ 'bg-green-300': filesStore.selectedFiles.has(file.name) }"
                 :style="{ top: itemHeight + 'px' }"
-                @click="toggleFileSelection(file, $event);"
-                @dblclick="toggleFileSelection(file, $event);">
+                @click="toggleFileSelection(file, $event)"
+                @dblclick="toggleFileSelection(file, $event)"
+                @dragover.prevent="file.type === 'dir'"
+                @dragstart="onFileDragStart(file)"
+                @drop="onFileDrop(file)">
 
                 <!-- File icon -->
                 <div class="w-10 flex justify-center">

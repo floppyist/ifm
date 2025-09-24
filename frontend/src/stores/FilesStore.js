@@ -188,13 +188,14 @@ export const useFilesStore = defineStore('files', () => {
         try {
             const res = await workerStore.executeTask(workerURL, {
                 dir: currentPath.value,
-                files: [...selectedFiles.value.values()].map(f => f.name),
+                files: [...selectedFiles.value.keys()],
                 destination,
                 action,
                 url: window.location.href,
             });
 
             if (res.status === 'OK') {
+                /* Remove already moved files from main files array based on selectedFiles */
                 for (const f of selectedFiles.value.keys()) {
                     files.value.delete(f);
                 }
