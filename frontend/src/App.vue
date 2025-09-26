@@ -70,7 +70,11 @@ function handleGlobalKeys(e) {
                 break;
             case 'A':
                 e.preventDefault();
-                filesStore.selectedFiles = new Map(filesStore.files);
+
+                filesStore.selectedFiles = new Map(
+                    filesStore.filteredFiles.map(f => { return [f.name, f]; }),
+                );
+
                 break;
             case 'T':
                 e.preventDefault();

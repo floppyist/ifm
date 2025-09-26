@@ -322,7 +322,6 @@ watch(() => filesStore.search, () => {
 
             <!-- Bottom spacer -->
             <div :style="{ height: bottomSpacer + 'px' }"></div>
-
         </div>
     </div>
 
