@@ -57,8 +57,7 @@ function handleGlobalKeys(e) {
         switch (e.key) {
             case 'G':
                 e.preventDefault();
-                const scrollContainer = document.getElementById('scrollContainer');
-                scrollContainer.scrollTo(0, scrollContainer.scrollHeight);
+                document.getElementById('scrollContainer').scrollTo(0, scrollContainer.scrollHeight);
                 break;
             case 'F':
                 e.preventDefault();
@@ -80,6 +79,9 @@ function handleGlobalKeys(e) {
                 e.preventDefault();
                 modalsStore.openModal('tasks');
                 break;
+            case '/':
+                e.preventDefault();
+                document.getElementById('searchbar').focus();
         }
     } else {
         switch (e.key) {

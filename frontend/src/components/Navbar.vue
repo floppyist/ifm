@@ -18,6 +18,10 @@ const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
 
 const search = ref(filesStore.search);
+
+function onExit() {
+    document.getElementById('searchbar').blur();
+}
 </script>
 
 <template>
@@ -33,8 +37,10 @@ const search = ref(filesStore.search);
                 </div>
 
                 <input 
+                    id="searchbar"
                     v-model="search" 
                     @input="filesStore.setSearch(search)" 
+                    @keydown.escape="onExit"
                     class="w-full bg-slate-600 text-white text-semibold text-lg px-3 py-1 focus:outline-none rounded-lg" 
                     placeholder="Search..."
                 />
