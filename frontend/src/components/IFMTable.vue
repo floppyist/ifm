@@ -38,10 +38,10 @@ const containerHeight = ref(0);
 let ascending = true;
 
 /* Dummy folder to handle upward path navigation */
-const dblDotFolder = {
+const dblDotFolder = reactive({
     name: '..', 
     type: 'dir', 
-}
+});
 
 onMounted(() => {
     /* Fetch all files from backend in root directory at first */
@@ -131,16 +131,38 @@ function sortBy(key) {
     filesStore.sorting.ascending = ascending;
 }
 
-function onFileDragStart(file) {
-    filesStore.selectedFiles.set(file.name, file);
-}
-
 function onFileDrop(file) {
-    if (file.type !== 'dir' || filesStore.selectedFiles.has(file.name)) {
+    file.isDragOver = false;
+
+    if (file.type !== 'dir') {
         return null;
     }
 
+    if (filesStore.selectedFiles.has(file.name)) {
+        if (filesStore.selectedFiles.size > 1) {
+            /* Prevents a folder from being moved within itself */
+            filesStore.selectedFiles.delete(file.name);
+        } else {
+            return null;
+        }
+    }
+
     filesStore.moveCopyFile(file.name, 'move');
+}
+
+function onFileDragEnter(file) {
+    file.isDragOver = true;
+}
+
+function onFileDragLeave(file, event) {
+    /* Prevents the isDragOver flag from being set when hovering over child element */
+    if (!event.currentTarget.contains(event.relatedTarget)) {
+        file.isDragOver = false;
+    }
+}
+
+function onFileDragStart(file) {
+    filesStore.selectedFiles.set(file.name, file);
 }
 
 watch(() => filesStore.search, () => {
@@ -194,8 +216,12 @@ watch(() => filesStore.search, () => {
             <div :style="{ height: topSpacer + 'px' }"></div>
 
             <!-- Static dot folder -->
-            <div v-if="filesStore.currentPath !== ''" class="sticky top-0 flex border-b border-gray-300 h-[50px] bg-slate-200 items-center hover:bg-[#add8e6]"
+            <div v-show="filesStore.currentPath !== ''" 
+                class="sticky top-0 flex border-b border-gray-300 h-[50px] items-center hover:bg-blue-300"
+                :class="[dblDotFolder.isDragOver ? 'bg-green-200' : 'bg-slate-200']"
                 @dragover.prevent
+                @dragenter="onFileDragEnter(dblDotFolder)"
+                @dragleave="onFileDragLeave(dblDotFolder, $event)"
                 @drop="onFileDrop(dblDotFolder)">
 
                 <!-- File icon -->
@@ -241,13 +267,15 @@ watch(() => filesStore.search, () => {
 
             <!-- Data -->
             <div v-for="file in visibleFiles" :key="file.name" 
-                class="flex border-b border-gray-300 h-[50px] items-center hover:bg-[#add8e6]"
+                class="flex border-b border-gray-300 h-[50px] items-center hover:bg-blue-300"
                 draggable="true"
-                :class="{ 'bg-green-300': filesStore.selectedFiles.has(file.name) }"
+                :class="{ 'bg-blue-200': filesStore.selectedFiles.has(file.name), 'bg-green-200' : file.isDragOver && file.type === 'dir' }"
                 :style="{ top: itemHeight + 'px' }"
                 @click="toggleFileSelection(file, $event)"
                 @dblclick="toggleFileSelection(file, $event)"
-                @dragover.prevent="file.type === 'dir'"
+                @dragover.prevent
+                @dragenter="onFileDragEnter(file)"
+                @dragleave="onFileDragLeave(file, $event)"
                 @dragstart="onFileDragStart(file)"
                 @drop="onFileDrop(file)">
 

@@ -49,7 +49,7 @@ onMounted(() => {
 function handleGlobalKeys(e) {
     const active = document.activeElement;
 
-    if (active && (active.tagName === 'INPUT')) {
+    if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
         return;
     }
 
@@ -68,15 +68,23 @@ function handleGlobalKeys(e) {
                 e.preventDefault();
                 modalsStore.openModal('newDir')
                 break;
+            case 'A':
+                e.preventDefault();
+                filesStore.selectedFiles = new Map(filesStore.files);
+                break;
+            case 'T':
+                e.preventDefault();
+                modalsStore.openModal('tasks');
+                break;
         }
     } else {
         switch (e.key) {
+            case 'Escape':
+                /* Remove all selections */
+                filesStore.selectedFiles = new Map();
+                break;
             case 'r':
                 filesStore.refresh();
-                break;
-            case 't':
-                e.preventDefault();
-                modalsStore.openModal('tasks');
                 break;
             case 'g':
                 if (lastKey === 'g') {

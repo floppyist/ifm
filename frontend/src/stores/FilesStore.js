@@ -70,8 +70,9 @@ export const useFilesStore = defineStore('files', () => {
                 url: window.location.href
             });
 
-            /* Reset current map with new one */
+            /* Reset current map */
             const newMap = new Map();
+
             for (const f of res) {
                 newMap.set(f.name, reactive(f));
             }
