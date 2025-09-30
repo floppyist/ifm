@@ -7,12 +7,12 @@ export const useWorkerStore = defineStore('worker', () => {
     const tasks = ref([]);
 
     /* Actions */
-    function executeTask(workerModuleURL, payload) {
+    function executeTask(workerModuleURL, workerName, payload) {
         return new Promise((resolve, reject) => {
             const worker = new Worker(workerModuleURL, { type: 'module' });
             const taskId = Date.now();
 
-            const task = reactive({ id: taskId, workerModuleURL, status: '' });
+            const task = reactive({ id: taskId, workerName: workerName, payload, workerModuleURL, status: '' });
             tasks.value.push(task);
 
             task.status = 'PENDING';

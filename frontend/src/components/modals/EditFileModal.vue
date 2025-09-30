@@ -67,7 +67,7 @@ defineExpose({ open, close, isOpen });
     <dialog 
         @keydown.esc="modalsStore.closeModal('editFile') 
         "ref="modal" 
-        :class="fullscreenFlag ? 'w-full h-full' : 'h-[70vh]'"
+        :class="fullscreenFlag ? 'w-full h-full' : file?.type !== 'dir' ? 'h-[70vh]' : ''"
         class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-slate-700 text-slate-300 rounded-lg shadow-xl/30 w-[400px] z-1">
         <div class="flex flex-col h-full">
             <!-- Header -->
@@ -84,7 +84,7 @@ defineExpose({ open, close, isOpen });
             </div>
 
             <!-- Body -->
-            <div v-if="file" class="flex flex-1 flex-col pt-3 min-h-[300px]">
+            <div v-if="file" class="flex flex-1 flex-col pt-3">
                 <div class="flex flex-row gap-2">
                     <input 
                         ref="input"
@@ -105,11 +105,12 @@ defineExpose({ open, close, isOpen });
                 </div>
                 <p class="text-xs py-1">{{ 'Path: /' + filesStore.currentPath }}</p>
                 <ACEEditor 
+                    v-if="file.type !== 'dir'"
                     v-model="file.content"
                     :content="file.content"
                     :filename="file.name"
                     :newname="newname"
-                    class="flex-1"
+                    class="w-full"
                 />
                 <div v-if="error !== ''" class="flex flex-wrap items-end w-full text-xs break-all text-red-500">{{ error }}</div>
             </div>

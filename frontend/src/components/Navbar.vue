@@ -19,6 +19,20 @@ const modalsStore = useModalsStore();
 
 const search = ref(filesStore.search);
 
+function onInput() {
+    if (!search.value.startsWith('/')) {
+        filesStore.isRecursiveSearch = false;
+        filesStore.setSearch(search.value);
+    }
+}
+
+function onEnter() {
+    if (search.value.startsWith('/')) {
+        filesStore.isRecursiveSearch = true;
+        filesStore.searchFiles(search.value.replace('/', ''));
+    }
+}
+
 function onExit() {
     document.getElementById('searchbar').blur();
 }
@@ -39,9 +53,11 @@ function onExit() {
                 <input 
                     id="searchbar"
                     v-model="search" 
-                    @input="filesStore.setSearch(search)" 
+                    @input="onInput"
+                    @keydown.enter="onEnter"
                     @keydown.escape="onExit"
                     class="w-full bg-slate-600 text-white text-semibold text-lg px-3 py-1 focus:outline-none rounded-lg" 
+                    :class="{ 'ring-2 ring-red-400' : search.startsWith('/', '') }"
                     placeholder="Search..."
                 />
             </div>

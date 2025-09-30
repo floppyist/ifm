@@ -568,8 +568,10 @@ f00bar;
                 return ["status" => "OK", "message" => $this->l('file_save_success'), "fileData" => $this->getItemInformation($rename)];
             else
                 throw new Exception($this->l('file_save_error'));
-        } else
-            throw new IFMException($this->l('file_save_error'));
+        }
+
+        // Pass folder renames
+        return ["status" => "OK", "message" => $this->l('file_save_success'), "fileData" => $this->getItemInformation($rename)];
 	}
 
 	// provides a file for downloading

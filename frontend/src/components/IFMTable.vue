@@ -4,6 +4,8 @@ import { ref, onMounted, computed, watch, reactive } from 'vue';
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
 
+import ItemContextMenu from '@/components/ItemContextMenu.vue';
+
 /* Icons */
 import {
     DocumentIcon,
@@ -77,6 +79,15 @@ const visibleFiles = computed(() => {
 const topSpacer = computed(() => Math.max(0, startIndex.value) * itemHeight);
 const bottomSpacer = computed(() => Math.max(0, filesStore.filteredFiles.length - endIndex.value) * itemHeight);
 
+
+/*
+ * Context menu stuff
+ */
+const showItemContextMenu = ref(false);
+const itemContextMenuX = ref(0);
+const itemContextMenuY = ref(0);
+const itemContextMenuFile = ref(null);
+
 /* 
  * General navigation handling
  *
@@ -96,13 +107,19 @@ async function handleFileNavigation(file) {
                     /* Extend path if not in root dir */
                     filesStore.changePath(filesStore.currentPath + '/' + file.name);
                 }
+
+                /* Disable recursive search to handle file navigation properly */
+                filesStore.isRecursiveSearch = false;
             }
 
             /* Always scroll top if new directory is loaded and rendered */
             if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
             break;
         case 'file':
-            modalsStore.openModal('editFile', file);
+            /* Opens file directly */
+            window.location.href = hrefEncode(filesStore.currentPath + "/" + file.name);
+
+            // modalsStore.openModal('editFile', file);
             break;
         default: 
             break;
@@ -165,6 +182,42 @@ function onFileDragStart(file) {
     filesStore.selectedFiles.set(file.name, file);
 }
 
+function toggleItemContextMenu(file, event) {
+    itemContextMenuX.value = event.clientX;
+    itemContextMenuY.value = event.clientY;
+    itemContextMenuFile.value = file;
+    showItemContextMenu.value = !showItemContextMenu.value;
+}
+
+/*
+ * Taken from ifm.js to encode filenames properly
+ */
+function hrefEncode(link) {
+    return link
+        .replace( /%/g, '%25' )
+        .replace( /;/g, '%3B' )
+        .replace( /\?/g, '%3F' )
+        .replace( /:/g, '%3A' )
+        .replace( /@/g, '%40' )
+        .replace( /&/g, '%26' )
+        .replace( /=/g, '%3D' )
+        .replace( /\+/g, '%2B' )
+        .replace( /\$/g, '%24' )
+        .replace( /,/g, '%2C' )
+        .replace( /</g, '%3C' )
+        .replace( />/g, '%3E' )
+        .replace( /#/g, '%23' )
+        .replace( /"/g, '%22' )
+        .replace( /{/g, '%7B' )
+        .replace( /}/g, '%7D' )
+        .replace( /\|/g, '%7C' )
+        .replace( /\^/g, '%5E' )
+        .replace( /\[/g, '%5B' )
+        .replace( /\]/g, '%5D' )
+        .replace( /\\/g, '%5C' )
+        .replace( /`/g, '%60' )
+}
+
 watch(() => filesStore.search, () => {
     /* NOTE: A bit hacky, but prevents longer filtering of elements (search) if the user has previously scrolled to the end */
     if (scrollContainer.value) scrollContainer.value.scrollTop = 0;
@@ -183,7 +236,7 @@ watch(() => filesStore.search, () => {
             </div>
             <div class="w-10"></div>
             <div class="w-24">
-                <p @click="sortBy('size')" class="w-max cursor-pointer select-none">
+                <p @click="sortBy('size_raw')" class="w-max cursor-pointer select-none">
                     Size
                 </p>
             </div>
@@ -211,12 +264,12 @@ watch(() => filesStore.search, () => {
             id="scrollContainer"
             class="flex-1 overflow-auto relative scrollbar-hide" 
             @scroll="onScroll">
-                    
+
             <!-- Top spacer -->
             <div :style="{ height: topSpacer + 'px' }"></div>
 
             <!-- Static dot folder -->
-            <div v-show="filesStore.currentPath !== ''" 
+            <div v-show="filesStore.currentPath !== ''"
                 class="sticky top-0 flex border-b border-gray-300 h-[50px] items-center hover:bg-blue-300"
                 :class="[dblDotFolder.isDragOver ? 'bg-green-200' : 'bg-slate-200']"
                 @dragover.prevent
@@ -277,7 +330,8 @@ watch(() => filesStore.search, () => {
                 @dragenter="onFileDragEnter(file)"
                 @dragleave="onFileDragLeave(file, $event)"
                 @dragstart="onFileDragStart(file)"
-                @drop="onFileDrop(file)">
+                @drop="onFileDrop(file)"
+                @contextmenu.prevent="toggleItemContextMenu(file, $event)">
 
                 <!-- File icon -->
                 <div class="w-10 flex justify-center">
@@ -322,6 +376,14 @@ watch(() => filesStore.search, () => {
 
             <!-- Bottom spacer -->
             <div :style="{ height: bottomSpacer + 'px' }"></div>
+
+            <ItemContextMenu 
+                v-if="showItemContextMenu"
+                :x="itemContextMenuX"
+                :y="itemContextMenuY"
+                :file="itemContextMenuFile"
+                @close="showItemContextMenu = false"
+            />
         </div>
     </div>
 

@@ -12,17 +12,20 @@ import fileEditWorker from '@/workers/fileEditWorker.js?raw';
 import fileCopyMoveWorker from '@/workers/fileCopyMoveWorker.js?raw';
 import dirCreationWorker from '@/workers/dirCreationWorker.js?raw';
 import downLoader from '@/workers/downLoader.js?raw';
+import recursiveSearchWorker from '@/workers/recursiveSearchWorker.js?raw';
 
 export const useFilesStore = defineStore('files', () => {
     /* State */
     const files = ref(new Map());
     const selectedFiles = ref(new Map());
+    const recursiveSearchFiles = ref(new Map());
     const currentPath = ref('');
 
     const search = ref('');
     const sorting = ref({ key: 'name', ascending: true });
 
     const isLoading = ref(false);
+    const isRecursiveSearch = ref(false);
 
     /* Used to add debounce for search */
     let searchTimeout;
@@ -32,8 +35,11 @@ export const useFilesStore = defineStore('files', () => {
 
     /* Getters */
     const filteredFiles = computed(() => {
-        /* Treat map temporarily as array for filtering (search) */
-        return Array.from(files.value.values())
+        /* 
+         * Treat map temporarily as array for filtering (search)
+         * Switching between normal file view and recursive search results 
+         */
+        return Array.from(isRecursiveSearch.value ? recursiveSearchFiles.value.values() : files.value.values())
             .filter(f => f.name.toLowerCase().includes(search.value.toLowerCase()))
             .sort((a, b) => {
                 /* Sort directories first and put them always at the top */
@@ -45,8 +51,8 @@ export const useFilesStore = defineStore('files', () => {
 
                 let result;
 
-                if (key === 'size') {
-                    result = sizeToBytes(a[key]) - sizeToBytes(b[key]);
+                if (key === 'size_raw') {
+                    result = a[key] - b[key];
                 } else if (typeof a[key] === 'string') {
                     result = a[key].localeCompare(b[key]);
                 } else {
@@ -65,7 +71,7 @@ export const useFilesStore = defineStore('files', () => {
         const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await workerStore.executeTask(workerURL, {
+            const res = await workerStore.executeTask(workerURL, 'getFiles', {
                 dir,
                 url: window.location.href
             });
@@ -100,7 +106,7 @@ export const useFilesStore = defineStore('files', () => {
         const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await workerStore.executeTask(workerURL, {
+            const res = await workerStore.executeTask(workerURL, 'getFileContent', {
                 dir: currentPath.value,
                 filename: file.name,
                 url: window.location.href,
@@ -123,7 +129,7 @@ export const useFilesStore = defineStore('files', () => {
         const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await workerStore.executeTask(workerURL, {
+            const res = await workerStore.executeTask(workerURL, 'createFile', {
                 dir: currentPath.value,
                 filename,
                 content,
@@ -146,12 +152,13 @@ export const useFilesStore = defineStore('files', () => {
         const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await workerStore.executeTask(workerURL, {
+            const res = await workerStore.executeTask(workerURL, 'editFile', {
                 dir: currentPath.value,
                 filename: file.name,
-                content: file.content,
+                content: file.content || '',
                 newname,
                 override,
+                mime_type: file.mime_type || '',
                 url: window.location.href,
             });
 
@@ -183,11 +190,13 @@ export const useFilesStore = defineStore('files', () => {
     }
 
     async function moveCopyFile(destination, action) {
+        isLoading.value = true;
+
         const blob = new Blob([fileCopyMoveWorker], { type: 'application/javascript' });
         const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await workerStore.executeTask(workerURL, {
+            const res = await workerStore.executeTask(workerURL, 'moveCopyFile', {
                 dir: currentPath.value,
                 files: [...selectedFiles.value.keys()],
                 destination,
@@ -207,6 +216,36 @@ export const useFilesStore = defineStore('files', () => {
             }
         } catch (err) {
             throw err;
+        } finally {
+            isLoading.value = false;
+        }
+    }
+
+    async function searchFiles(pattern) {
+        isLoading.value = true;
+
+        const blob = new Blob([recursiveSearchWorker], { type: 'application/javascript' });
+        const workerURL = URL.createObjectURL(blob);
+
+        try {
+            const res = await workerStore.executeTask(workerURL, 'searchFiles', {
+                dir: currentPath.value,
+                pattern,
+                url: window.location.href,
+            });
+
+            /* Reset current map */
+            const newMap = new Map();
+
+            for (const f of res) {
+                newMap.set(f.name, reactive(f));
+            }
+
+            recursiveSearchFiles.value = newMap;
+        } catch (err) {
+            throw err;
+        } finally {
+            isLoading.value = false;
         }
     }
 
@@ -215,7 +254,7 @@ export const useFilesStore = defineStore('files', () => {
         const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await workerStore.executeTask(workerURL, {
+            const res = await workerStore.executeTask(workerURL, 'createDir', {
                 dir: currentPath.value,
                 dirname,
                 url: window.location.href,
@@ -232,11 +271,13 @@ export const useFilesStore = defineStore('files', () => {
     }
 
     async function downloadFile(file) {
+        isLoading.value = true;
+
         const blob = new Blob([downLoader], { type: 'application/javascript'} );
         const workerURL = URL.createObjectURL(blob);
 
         try {
-            const res = await workerStore.executeTask(workerURL, {
+            const res = await workerStore.executeTask(workerURL, 'downloadFile', {
                 api: file.type === 'file' ? 'download' : 'zipnload',
                 dir: currentPath.value,
                 filename: file.name,
@@ -244,8 +285,10 @@ export const useFilesStore = defineStore('files', () => {
             });
 
             if (res) {
+                const blob = new Blob([res], { type: file.mime_type });
+
                 const link = document.createElement('a');
-                link.href = URL.createObjectURL(res);
+                link.href = URL.createObjectURL(blob);
                 link.download = file.type === 'file' ? file.name : file.name + '.zip';
                 document.body.appendChild(link);
                 link.click();
@@ -254,6 +297,8 @@ export const useFilesStore = defineStore('files', () => {
             }
         } catch (err) {
             console.log('Worker error:', err);
+        } finally {
+            isLoading.value = false;
         }
     }
 
@@ -269,27 +314,17 @@ export const useFilesStore = defineStore('files', () => {
             search.value = query;
         }, 300);
     }
-
-    /* Utility functions */
-    function sizeToBytes(sizeString) {
-        const sizeMap = { Byte: 1, KB: 1000, MB: Math.pow(1000, 2), GB: Math.pow(1000, 3) };
-        const regex = /(\d+(?:\.\d+)?)\s*([A-Za-z]+)/;
-
-        let match;
-
-        while ((match = regex.exec(sizeString)) !== null) {
-            return parseFloat(match[1]) * sizeMap[match[2]];
-        }
-    }
-
+    
     return {
         /* State */
         files,
         selectedFiles,
+        recursiveSearchFiles,
         currentPath,
         search,
         sorting,
         isLoading,
+        isRecursiveSearch,
         /* Getters */
         filteredFiles,
         /* Actions */
@@ -299,6 +334,7 @@ export const useFilesStore = defineStore('files', () => {
         createFile,
         editFile,
         moveCopyFile,
+        searchFiles,
         createDir,
         downloadFile,
         changePath,
