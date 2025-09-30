@@ -60,7 +60,7 @@ defineExpose({ open, close, isOpen });
             <div v-for="task in workerStore.tasks.slice().reverse()" :key="task.id" class="py-2 text-xs text-slate-700">
                 <div class="flex flex-col justify-between rounded-sm p-2"
                     :class="getStatusColor(task)">
-                    <div class="flex">
+                    <div class="flex text-sm pb-2">
                         <p>
                             {{ task.payload.url + '/' }}
                         </p>
@@ -68,6 +68,19 @@ defineExpose({ open, close, isOpen });
                             {{ task.workerName }}
                         </p>
                         <XCircleIcon v-if="task.status === 'PENDING'" class="size-4"></XCircleIcon>
+                    </div>
+                    <div v-for="(value, key) in task.payload" class="flex">
+                        <p class="font-bold">
+                            {{ key }}
+                        </p>
+                        <div>
+                            <p v-if="key === 'content'" class="font-bold">
+                                {{ ': true (hidden)' }}
+                            </p>
+                            <p v-else>
+                                {{ ': ' + [value === '' ? '""' : value] }}
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
