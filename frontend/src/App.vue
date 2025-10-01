@@ -110,7 +110,7 @@ function handleGlobalKeys(e) {
 </script>
 
 <template>
-    <main class="flex flex-col h-screen bg-white max-w-7xl mx-auto">
+    <main class="flex flex-col h-screen bg-white">
         <Navbar />
 
         <div class="flex-auto overflow-x-hidden">

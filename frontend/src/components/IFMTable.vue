@@ -225,7 +225,7 @@ watch(() => filesStore.search, () => {
 </script>
 
 <template>
-    <div class="h-full flex flex-col bg-slate-200">
+    <div class="h-full flex flex-col bg-slate-200 max-w-7xl mx-auto">
         <!-- Header -->
         <div class="flex border-b border-gray-300 bg-slate-300 text-gray-700 h-[50px] items-center text-xl">
             <div class="w-10"></div>

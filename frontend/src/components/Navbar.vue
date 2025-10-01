@@ -27,7 +27,7 @@ function onInput() {
 }
 
 function onEnter() {
-    if (search.value.startsWith('/')) {
+    if (search.value.startsWith('/') && !filesStore.isLoading) {
         filesStore.isRecursiveSearch = true;
         filesStore.searchFiles(search.value.replace('/', ''));
     }
@@ -40,7 +40,7 @@ function onExit() {
 
 <template>
     <nav class="sticky bg-slate-700 text-slate-300">
-        <div class="flex justify-between p-3 items-center gap-3">
+        <div class="flex justify-between p-3 items-center gap-3 max-w-7xl mx-auto">
             <div class="flex w-full items-center gap-3">
                 <div 
                     @click="filesStore.getFiles()"
