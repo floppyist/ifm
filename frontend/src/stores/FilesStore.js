@@ -163,24 +163,8 @@ export const useFilesStore = defineStore('files', () => {
             });
 
             if (res.status === 'OK') {
-                const existing = files.value.get(file.name);
-                let rebuild = true;
-
-                if (!existing) {
-                    /* New name isnt existing so just add */
-                    files.value.set(res.fileData.name, reactive(res.fileData));
-                } else if (file.name === res.fileData.name) {
-                    /* 
-                     * Copy all properties/fields from "existing" into the main files data map to prevent
-                     * files that have not been renamed from moving up in order
-                     */
-                    Object.assign(existing, reactive(res.fileData));
-
-                    rebuild = false;
-                } else {
-                    files.value.delete(file.name);
-                    files.value.set(res.fileData.name, reactive(res.fileData));
-                }
+                files.value.delete(file.name);
+                files.value.set(res.fileData.name, reactive(res.fileData));
             } else {
                 throw new Error(res.message);
             }
@@ -279,7 +263,7 @@ export const useFilesStore = defineStore('files', () => {
         try {
             const res = await workerStore.executeTask(workerURL, 'downloadFile', {
                 api: file.type === 'file' ? 'download' : 'zipnload',
-                dir: currentPath.value,
+                dir: file.path,
                 filename: file.name,
                 url: window.location.href,
             });

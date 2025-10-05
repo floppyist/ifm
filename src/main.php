@@ -258,7 +258,9 @@ f00bar;
 
 	private function getItemInformation($name) {
 		$item = [];
-		$item["name"] = $name;
+		$item["name"] = basename($name);
+        $item["path"] = dirname($name);
+
 		if (is_dir($name)) {
 			$item["type"] = "dir";
 			if ($name == "..")

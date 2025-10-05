@@ -2,7 +2,6 @@
 import { ref, onMounted, computed, watch, reactive } from 'vue';
 
 import { useFilesStore } from '@/stores/FilesStore.js';
-import { useModalsStore } from '@/stores/ModalsStore.js';
 
 import ItemContextMenu from '@/components/ItemContextMenu.vue';
 
@@ -21,7 +20,6 @@ import {
 
 /* Stores */
 const filesStore = useFilesStore();
-const modalsStore = useModalsStore();
 
 /* Used to determine the correct icon to display */
 const downloadIcons = {
@@ -94,6 +92,13 @@ const itemContextMenuFile = ref(null);
  * changePath directly triggers the retrieval of the new data from the backend in the new directory
  */
 async function handleFileNavigation(file) {
+    if (filesStore.isRecursiveSearch) {
+        filesStore.changePath(file.path === '.' ? '' : file.path);
+        filesStore.isRecursiveSearch = false;
+
+        return;
+    }
+
     switch (file.type) {
         case 'dir':
             if (file.name === '..') {
@@ -118,8 +123,6 @@ async function handleFileNavigation(file) {
         case 'file':
             /* Opens file directly */
             window.location.href = hrefEncode(filesStore.currentPath + "/" + file.name);
-
-            // modalsStore.openModal('editFile', file);
             break;
         default: 
             break;
@@ -183,10 +186,12 @@ function onFileDragStart(file) {
 }
 
 function toggleItemContextMenu(file, event) {
-    itemContextMenuX.value = event.clientX;
-    itemContextMenuY.value = event.clientY;
-    itemContextMenuFile.value = file;
-    showItemContextMenu.value = !showItemContextMenu.value;
+    if (!filesStore.isRecursiveSearch) {
+        itemContextMenuX.value = event.clientX;
+        itemContextMenuY.value = event.clientY;
+        itemContextMenuFile.value = file;
+        showItemContextMenu.value = !showItemContextMenu.value;
+    }
 }
 
 /*
@@ -255,7 +260,6 @@ watch(() => filesStore.search, () => {
                     Group
                 </p>
             </div>
-            <div class="w-10"></div>
         </div>
 
         <!-- Body -->
@@ -313,15 +317,28 @@ watch(() => filesStore.search, () => {
 
                 <!-- File group -->
                 <div class="w-24 hidden lg:flex"></div>
-
-                <!-- Actions -->
-                <div class="w-10"></div>
             </div>
 
             <!-- Data -->
-            <div v-for="file in visibleFiles" :key="file.name" 
+            <div v-if="visibleFiles.length === 0" class="relative w-full h-full flex items-center justify-center">
+                <!-- Diagonale Linien als Hintergrund -->
+                <svg class="absolute inset-0 w-full h-full">
+                    <defs>
+                        <pattern id="slash" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                            <line x1="0" y1="0" x2="0" y2="20" stroke="black" stroke-width="1"/>
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#slash)" />
+                </svg>
+
+                <!-- Text darüber -->
+                <p class="relative z-10 text-2xl font-bold bg-gray-200 px-4 py-2 rounded">
+                    {{ 'no results' }}
+                </p>
+            </div>
+            <div v-else v-for="file in visibleFiles" :key="file.name" 
                 class="flex border-b border-gray-300 h-[50px] items-center hover:bg-blue-300"
-                draggable="true"
+                :draggable="filesStore.isRecursiveSearch ? false : true"
                 :class="{ 'bg-blue-200': filesStore.selectedFiles.has(file.name), 'bg-green-200' : file.isDragOver && file.type === 'dir' }"
                 :style="{ top: itemHeight + 'px' }"
                 @click="toggleFileSelection(file, $event)"
@@ -340,12 +357,13 @@ watch(() => filesStore.search, () => {
                 </div>
 
                 <!-- Filename -->
-                <div class="flex flex-1 items-center h-full min-w-[75px] truncate select-none">
-                    <span
-                        @click.stop="handleFileNavigation(file)" 
-                        class="truncate text-[#337ab7] cursor-pointer hover:underline select-text">
+                <div class="flex flex-1 justify-between items-center h-full min-w-[75px] truncate select-none">
+                    <p @click.stop="handleFileNavigation(file)" class="items-center truncate text-[#337ab7] cursor-pointer hover:underline select-text">
                         {{ file.name }}
-                    </span>
+                    </p>
+                    <p v-if="filesStore.isRecursiveSearch && file.path !== '.'" class="text-sm text-gray-500">
+                        {{ file.path }}
+                    </p>
                 </div>
 
                 <!-- Download button -->
@@ -367,11 +385,6 @@ watch(() => filesStore.search, () => {
 
                 <!-- File group -->
                 <div class="w-24 justify-center truncate hidden lg:flex">{{ file.group }}</div>
-
-                <!-- Actions -->
-                <div class="w-10 flex text-center"> 
-                    <EllipsisHorizontalIcon class="size-6 rounded-full bg-slate-300 cursor-pointer text-[#337ab7]" />
-                </div>
             </div>
 
             <!-- Bottom spacer -->
