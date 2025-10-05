@@ -66,7 +66,7 @@ defineExpose({ open, close, isOpen });
         @keydown.esc="modalsStore.closeModal('newFile')"
         ref="modal" 
         :class="fullscreenFlag ? 'w-full h-full' : 'h-[70vh]'"
-        class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-slate-700 text-slate-300 rounded-lg shadow-xl/30 w-[400px] z-1">
+        class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-slate-700 text-slate-300 rounded-lg shadow-xl/30 w-[400px] z-3">
         <div class="flex flex-col h-full">
             <!-- Header -->
             <div class="flex justify-between items-center">

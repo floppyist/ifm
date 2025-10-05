@@ -321,18 +321,16 @@ watch(() => filesStore.search, () => {
 
             <!-- Data -->
             <div v-if="visibleFiles.length === 0" class="relative w-full h-full flex items-center justify-center">
-                <!-- Diagonale Linien als Hintergrund -->
                 <svg class="absolute inset-0 w-full h-full">
                     <defs>
-                        <pattern id="slash" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                        <pattern id="slash" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
                             <line x1="0" y1="0" x2="0" y2="20" stroke="black" stroke-width="1"/>
                         </pattern>
                     </defs>
                     <rect width="100%" height="100%" fill="url(#slash)" />
                 </svg>
 
-                <!-- Text darüber -->
-                <p class="relative z-10 text-2xl font-bold bg-gray-200 px-4 py-2 rounded">
+                <p class="relative z-2 text-2xl font-bold bg-slate-200 px-4 py-2">
                     {{ 'no results' }}
                 </p>
             </div>

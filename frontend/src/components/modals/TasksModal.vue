@@ -46,7 +46,7 @@ defineExpose({ open, close, isOpen });
 
 <template>
     <!-- Modal -->
-    <dialog @keydown.esc="modalsStore.closeModal('tasks') "ref="modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-slate-700 text-slate-300 rounded-lg shadow-xl/30 w-[400px] z-1 focus:outline-none">
+    <dialog @keydown.esc="modalsStore.closeModal('tasks') "ref="modal" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-slate-700 text-slate-300 rounded-lg shadow-xl/30 w-[400px] z-3 focus:outline-none">
         <!-- Header -->
         <div class="flex justify-between items-center">
             <h2 class="text-xl font-bold">
