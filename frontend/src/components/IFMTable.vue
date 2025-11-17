@@ -131,6 +131,8 @@ async function handleFileNavigation(file) {
 
 /* Allows the individual selection of multiple files */
 function toggleFileSelection(file, event) {
+    if (filesStore.isRecursiveSearch) return;
+
     if (event.ctrlKey || event.type === 'dblclick') {
         if (filesStore.selectedFiles.has(file.name)) {
             filesStore.selectedFiles.delete(file.name);

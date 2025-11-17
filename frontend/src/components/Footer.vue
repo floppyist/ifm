@@ -20,7 +20,10 @@ const workerStore = useWorkerStore();
                 <div 
                     v-show="!filesStore.isLoading" 
                     class="flex flex-wrap items-center gap-3 pr-3">
-                    <p>
+                    <p v-if="filesStore.isRecursiveSearch">
+                        {{ filesStore.filteredFiles.length + ' File(s)' }}
+                    </p>
+                    <p v-else>
                         {{ filesStore.selectedFiles.size + '/' + filesStore.filteredFiles.length + ' File(s) selected' }}
                     </p>
                 </div>
