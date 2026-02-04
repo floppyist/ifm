@@ -20,6 +20,7 @@ export const useFilesStore = defineStore('files', () => {
     const selectedFiles = ref(new Map());
     const recursiveSearchFiles = ref(new Map());
     const currentPath = ref('');
+    const lastPath = ref('');
 
     const search = ref('');
     const sorting = ref({ key: 'name', ascending: true });
@@ -87,6 +88,7 @@ export const useFilesStore = defineStore('files', () => {
             selectedFiles.value = new Map();
             currentPath.value = dir;
         } catch (err) {
+            currentPath.value = lastPath.value;
             console.error('Worker error:', err);
         } finally {
             isLoading.value = false;
@@ -287,6 +289,7 @@ export const useFilesStore = defineStore('files', () => {
     }
 
     async function changePath(dir) {
+        lastPath.value = currentPath.value;
         currentPath.value = dir;
         await getFiles(dir);
     }

@@ -322,7 +322,7 @@ watch(() => filesStore.search, () => {
             </div>
 
             <!-- Data -->
-            <div v-if="visibleFiles.length === 0" class="relative w-full h-full flex items-center justify-center">
+            <div v-if="visibleFiles.length === 0" class="absolute w-full h-full flex items-center justify-center">
                 <svg class="absolute inset-0 w-full h-full">
                     <defs>
                         <pattern id="slash" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
@@ -332,10 +332,11 @@ watch(() => filesStore.search, () => {
                     <rect width="100%" height="100%" fill="url(#slash)" />
                 </svg>
 
-                <p class="relative z-2 text-2xl font-bold bg-slate-200 px-4 py-2">
+                <p class="relative text-2xl font-bold bg-slate-200 px-4 py-2">
                     {{ 'no results' }}
                 </p>
             </div>
+
             <div v-else v-for="file in visibleFiles" :key="file.name" 
                 class="flex border-b border-gray-300 h-[50px] items-center hover:bg-blue-300"
                 :draggable="filesStore.isRecursiveSearch ? false : true"
