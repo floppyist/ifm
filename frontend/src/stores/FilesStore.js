@@ -88,11 +88,12 @@ export const useFilesStore = defineStore('files', () => {
             selectedFiles.value = new Map();
             currentPath.value = dir;
         } catch (err) {
+            currentPath.value = lastPath.value;
+
             if (err.cancelled) {
                 return;
             }
 
-            currentPath.value = lastPath.value;
             console.error('Worker error:', err);
         } finally {
             URL.revokeObjectURL(workerURL);

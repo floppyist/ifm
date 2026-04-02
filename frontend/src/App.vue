@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 
 import { useFilesStore } from '@/stores/FilesStore.js';
 import { useModalsStore } from '@/stores/ModalsStore.js';
+import { useWorkerStore } from '@/stores/WorkerStore';
 
 /* Components */
 import Navbar from '@/components/Navbar.vue';
@@ -18,6 +19,7 @@ import TasksModal from '@/components/modals/TasksModal.vue';
 /* Stores */
 const filesStore = useFilesStore();
 const modalsStore = useModalsStore();
+const workerStore = useWorkerStore();
 
 const newFileModal = ref(null);
 const editFileModal = ref(null);
@@ -86,6 +88,11 @@ function handleGlobalKeys(e) {
     } else {
         switch (e.key) {
             case 'Escape':
+                /* Terminate all background tasks if loading takes too long */
+                if (filesStore.isLoading) {
+                    workerStore.terminateEverything();
+                }
+
                 /* Remove all selections */
                 filesStore.selectedFiles = new Map();
                 break;
