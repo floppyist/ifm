@@ -8,7 +8,6 @@ self.onmessage = async (e) => {
     params.append('newname', newname === filename ? '' : newname);
     if (mime_type.startsWith('text') || mime_type === 'application/x-empty') params.append('content', content);
     params.append('override', override);
-    params.append('override', override);
 
     try {
         const res = await fetch(url, { method: 'POST', body: params });
