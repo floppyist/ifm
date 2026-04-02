@@ -15,7 +15,7 @@ exec("npm run build");
 chdir(realpath(dirname(__FILE__)));
 
 // output files and common attrs
-define( "IFM_VERSION",       "v4.0.2" );
+define( "IFM_VERSION",       "v4.1.1" );
 define( "IFM_RELEASE_DIR",   "dist/");
 define( "IFM_STANDALONE",    "ifm.php" );
 define( "IFM_STANDALONE_GZ", "ifm.min.php" );
