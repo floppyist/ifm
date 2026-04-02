@@ -88,6 +88,10 @@ export const useFilesStore = defineStore('files', () => {
             selectedFiles.value = new Map();
             currentPath.value = dir;
         } catch (err) {
+            if (err.cancelled) {
+                return;
+            }
+
             currentPath.value = lastPath.value;
             console.error('Worker error:', err);
         } finally {
@@ -120,6 +124,10 @@ export const useFilesStore = defineStore('files', () => {
                 console.warn(res.message);
             }
         } catch (err) {
+            if (err.cancelled) {
+                return;
+            }
+
             console.error('Worker error:', err);
         } finally {
             isLoading.value = false;
@@ -145,6 +153,10 @@ export const useFilesStore = defineStore('files', () => {
                 throw new Error(res.message);
             }
         } catch (err) {
+            if (err.cancelled) {
+                return;
+            }
+
             throw err;
         }
     }
@@ -171,6 +183,10 @@ export const useFilesStore = defineStore('files', () => {
                 throw new Error(res.message);
             }
         } catch (err) {
+            if (err.cancelled) {
+                return;
+            }
+
             throw err;
         }
     }
@@ -201,7 +217,9 @@ export const useFilesStore = defineStore('files', () => {
                 throw new Error(res.message);
             }
         } catch (err) {
-            throw err;
+            if (!err.cancelled) {
+                throw err;
+            }
         } finally {
             isLoading.value = false;
         }
@@ -229,7 +247,9 @@ export const useFilesStore = defineStore('files', () => {
 
             recursiveSearchFiles.value = newMap;
         } catch (err) {
-            throw err;
+            if (!err.cancelled) {
+                throw err;
+            }
         } finally {
             isLoading.value = false;
         }
@@ -252,6 +272,10 @@ export const useFilesStore = defineStore('files', () => {
                 throw new Error(res.message);
             }
         } catch (err) {
+            if (err.cancelled) {
+                return;
+            }
+
             throw err;
         }
     }
@@ -282,6 +306,10 @@ export const useFilesStore = defineStore('files', () => {
                 URL.revokeObjectURL(link.href);
             }
         } catch (err) {
+            if (err.cancelled) {
+                return;
+            }
+
             console.log('Worker error:', err);
         } finally {
             isLoading.value = false;

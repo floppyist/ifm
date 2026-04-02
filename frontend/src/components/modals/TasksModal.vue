@@ -58,16 +58,17 @@ defineExpose({ open, close, isOpen });
         <!-- Body -->
         <div class="flex flex-col max-h-100 overflow-auto pt-3 break-all scrollbar-hide">
             <div v-for="task in workerStore.tasks.slice().reverse()" :key="task.id" class="py-2 text-xs text-slate-700">
-                <div class="flex flex-col justify-between rounded-sm p-2"
+                <div class="flex flex-col rounded-sm p-2"
                     :class="getStatusColor(task)">
-                    <div class="flex text-sm pb-2">
-                        <p>
-                            {{ task.payload.url + '/' }}
-                        </p>
+                    <div class="flex justify-between text-sm pb-2">
                         <p class="font-bold">
-                            {{ task.workerName }}
+                            {{ task.payload.url + '/' + task.workerName }}
                         </p>
-                        <XCircleIcon v-if="task.status === 'PENDING'" class="size-4"></XCircleIcon>
+                        <XCircleIcon 
+                            @click="workerStore.terminateTask(task.id)"
+                            v-if="task.status === 'PENDING'" 
+                            class="size-5"
+                        ></XCircleIcon>
                     </div>
                     <div v-for="(value, key) in task.payload" class="flex">
                         <p class="font-bold">

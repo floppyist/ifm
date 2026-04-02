@@ -12,10 +12,17 @@ export const useWorkerStore = defineStore('worker', () => {
             const worker = new Worker(workerModuleURL, { type: 'module' });
             const taskId = Date.now();
 
-            const task = reactive({ id: taskId, workerName: workerName, payload, workerModuleURL, status: '' });
-            tasks.value.push(task);
+            const task = reactive({ 
+                id: taskId, 
+                workerName: workerName, 
+                payload, 
+                workerModuleURL, 
+                status: 'PENDING',
+                worker: worker,
+                cancelPromise: reject,
+            });
 
-            task.status = 'PENDING';
+            tasks.value.push(task);
 
             worker.onmessage = (e) => {
                 if (e.data.error) {
@@ -48,10 +55,16 @@ export const useWorkerStore = defineStore('worker', () => {
 
         if (task) {
             task.worker.terminate();
-            tasl.status = 'ABORT';
-            tasks.value = tasks.value.filter(t => t.id !== id);
+            task.cancelPromise({ cancelled: true });
+            task.status = 'ABORT';
         }
     };
+
+    function terminateEverything() {
+        tasks.value.forEach(task => {
+            terminateTask(task.id);
+        });
+    }
 
     return { 
         /* State */
@@ -59,5 +72,6 @@ export const useWorkerStore = defineStore('worker', () => {
         /* Actions */
         executeTask,
         terminateTask,
+        terminateEverything,
     };
 });
