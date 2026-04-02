@@ -95,6 +95,7 @@ export const useFilesStore = defineStore('files', () => {
             currentPath.value = lastPath.value;
             console.error('Worker error:', err);
         } finally {
+            URL.revokeObjectURL(workerURL);
             isLoading.value = false;
         }
     }
@@ -130,6 +131,7 @@ export const useFilesStore = defineStore('files', () => {
 
             console.error('Worker error:', err);
         } finally {
+            URL.revokeObjectURL(workerURL);
             isLoading.value = false;
         }
     }
@@ -158,6 +160,8 @@ export const useFilesStore = defineStore('files', () => {
             }
 
             throw err;
+        } finally {
+            URL.revokeObjectURL(workerURL);
         }
     }
 
@@ -188,6 +192,8 @@ export const useFilesStore = defineStore('files', () => {
             }
 
             throw err;
+        } finally {
+            URL.revokeObjectURL(workerURL);
         }
     }
 
@@ -221,6 +227,7 @@ export const useFilesStore = defineStore('files', () => {
                 throw err;
             }
         } finally {
+            URL.revokeObjectURL(workerURL);
             isLoading.value = false;
         }
     }
@@ -251,6 +258,7 @@ export const useFilesStore = defineStore('files', () => {
                 throw err;
             }
         } finally {
+            URL.revokeObjectURL(workerURL);
             isLoading.value = false;
         }
     }
@@ -277,6 +285,8 @@ export const useFilesStore = defineStore('files', () => {
             }
 
             throw err;
+        } finally {
+            URL.revokeObjectURL(workerURL);
         }
     }
 
@@ -312,6 +322,7 @@ export const useFilesStore = defineStore('files', () => {
 
             console.log('Worker error:', err);
         } finally {
+            URL.revokeObjectURL(workerURL);
             isLoading.value = false;
         }
     }
