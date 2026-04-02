@@ -264,6 +264,53 @@ watch(() => filesStore.search, () => {
             </div>
         </div>
 
+        <!-- Static dot folder -->
+        <div v-show="filesStore.currentPath !== ''"
+            class="sticky top-0 flex border-b border-gray-300 h-[50px] items-center hover:bg-blue-300"
+            :class="[dblDotFolder.isDragOver ? 'bg-green-200' : 'bg-slate-200']"
+            @dragover.prevent
+            @dragenter="onFileDragEnter(dblDotFolder)"
+            @dragleave="onFileDragLeave(dblDotFolder, $event)"
+            @drop="onFileDrop(dblDotFolder)">
+
+            <!-- File icon -->
+            <div class="w-10 flex justify-center">
+                <ChevronDoubleUpIcon class="size-5 text-[#337ab7]" />
+            </div>
+
+            <!-- Filename -->
+            <div class="flex flex-1 items-center h-full min-w-[75px] truncate select-none">
+                <span
+                    @click.stop="handleFileNavigation(dblDotFolder)" 
+                    class="truncate text-[#337ab7] cursor-pointer hover:underline select-text">
+                    <p>
+                        {{ '[up]' }}
+                    </p>
+                </span>
+            </div>
+
+            <!-- Download button -->
+            <div class="flex w-10 justify-center">
+                <CloudArrowDownIcon 
+                    v-if="filesStore.currentPath !== ''"
+                    @click="filesStore.downloadFile(dblDotFolder)"
+                    class="size-5 text-[#337ab7] cursor-pointer" 
+                />
+            </div>
+
+            <!-- File size -->
+            <div class="w-24 text-left truncate"></div>
+
+            <!-- File permissions -->
+            <div class="w-32 hidden sm:flex"></div>
+
+            <!-- File owner -->
+            <div class="w-24 hidden md:flex"></div>
+
+            <!-- File group -->
+            <div class="w-24 hidden lg:flex"></div>
+        </div>
+
         <!-- Body -->
         <div v-show="!filesStore.isLoading" 
             ref="scrollContainer"
@@ -274,52 +321,6 @@ watch(() => filesStore.search, () => {
             <!-- Top spacer -->
             <div :style="{ height: topSpacer + 'px' }"></div>
 
-            <!-- Static dot folder -->
-            <div v-show="filesStore.currentPath !== ''"
-                class="sticky top-0 flex border-b border-gray-300 h-[50px] items-center hover:bg-blue-300"
-                :class="[dblDotFolder.isDragOver ? 'bg-green-200' : 'bg-slate-200']"
-                @dragover.prevent
-                @dragenter="onFileDragEnter(dblDotFolder)"
-                @dragleave="onFileDragLeave(dblDotFolder, $event)"
-                @drop="onFileDrop(dblDotFolder)">
-
-                <!-- File icon -->
-                <div class="w-10 flex justify-center">
-                    <ChevronDoubleUpIcon class="size-5 text-[#337ab7]" />
-                </div>
-
-                <!-- Filename -->
-                <div class="flex flex-1 items-center h-full min-w-[75px] truncate select-none">
-                    <span
-                        @click.stop="handleFileNavigation(dblDotFolder)" 
-                        class="truncate text-[#337ab7] cursor-pointer hover:underline select-text">
-                        <p>
-                            {{ '[up]' }}
-                        </p>
-                    </span>
-                </div>
-
-                <!-- Download button -->
-                <div class="flex w-10 justify-center">
-                    <CloudArrowDownIcon 
-                        v-if="filesStore.currentPath !== ''"
-                        @click="filesStore.downloadFile(dblDotFolder)"
-                        class="size-5 text-[#337ab7] cursor-pointer" 
-                    />
-                </div>
-
-                <!-- File size -->
-                <div class="w-24 text-left truncate"></div>
-
-                <!-- File permissions -->
-                <div class="w-32 hidden sm:flex"></div>
-
-                <!-- File owner -->
-                <div class="w-24 hidden md:flex"></div>
-
-                <!-- File group -->
-                <div class="w-24 hidden lg:flex"></div>
-            </div>
 
             <!-- Data -->
             <div v-if="visibleFiles.length === 0" class="absolute w-full h-full flex items-center justify-center">
