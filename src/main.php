@@ -226,11 +226,11 @@ f00bar;
 	}
 
 	private function getFiles($dir) {
-		$this->chDirIfNecessary($dir);
+        $relPath = ($dir == "" || $dir == ".") ? "." : "./" . $dir;
 
 		unset($files); unset($dirs); $files = []; $dirs = [];
 
-		if ($handle = opendir(".")) {
+		if ($handle = opendir($relPath)) {
 			while (false !== ($result = readdir($handle))) {
 				if ($result == basename($_SERVER['SCRIPT_NAME']) && getcwd() == $this->initialWD)
 					continue;
@@ -241,15 +241,19 @@ f00bar;
 				elseif ($result != ".." && substr($result, 0, 1) == "." && $this->config['showhiddenfiles'] != 1)
 					continue;
 				else {
-					$item = $this->getItemInformation($result);
+                    $fullPath = rtrim($relPath, "/") . "/" . $result;
+					$item = $this->getItemInformation($fullPath);
+
 					if ($item['type'] == "dir")
 						$dirs[] = $item;
 					else
 						$files[] = $item;
 				}
 			}
+
 			closedir($handle);
 		}
+
 		array_multisort(array_column($dirs, 'name'), SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE, $dirs);
 		array_multisort(array_column($files, 'name'), SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE, $files);
 

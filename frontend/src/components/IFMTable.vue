@@ -357,7 +357,7 @@ watch(() => filesStore.search, () => {
                     <FolderIcon v-if="file.type === 'dir' && file.name !== '..'" class="size-5 text-[#337ab7]" />
                 </div>
 
-                <!-- Filename -->
+                <!-- Filename & Path-->
                 <div class="flex flex-1 justify-between items-center h-full min-w-[75px] truncate select-none">
                     <p @click.stop="handleFileNavigation(file)" class="items-center truncate text-[#337ab7] cursor-pointer hover:underline select-text">
                         {{ file.name }}
