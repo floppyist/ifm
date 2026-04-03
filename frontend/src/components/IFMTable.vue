@@ -29,6 +29,8 @@ const downloadIcons = {
 
 const scrollContainer = ref(null);
 
+let scrollTimeout = null;
+
 /* Fixed height for table rows to calculate total table height correctly */
 const itemHeight = 50;
 const buffer = 20;
@@ -50,6 +52,10 @@ onMounted(() => {
     containerHeight.value = scrollContainer.value.clientHeight;
 })
 
+/* Calculation of indices to obtain the range of rows to be rendered */
+const startIndex = computed(() => Math.floor(scrollTop.value / itemHeight) - buffer);
+const endIndex = computed(() => Math.ceil((scrollTop.value + containerHeight.value) / itemHeight) + buffer);
+
 /* Virtual scrolling */
 function onScroll() {
     /* Using RequestAnimationFrame to update frame by frame */
@@ -58,10 +64,6 @@ function onScroll() {
     });
 }
 
-/* Calculation of indices to obtain the range of rows to be rendered */
-const startIndex = computed(() => Math.floor(scrollTop.value / itemHeight) - buffer);
-const endIndex = computed(() => Math.ceil((scrollTop.value + containerHeight.value) / itemHeight) + buffer);
-
 /* Get a slice of the lines to be rendered instead of rendering everything at once */
 const visibleFiles = computed(() => {
     const start = Math.max(0, startIndex.value);
@@ -69,6 +71,26 @@ const visibleFiles = computed(() => {
 
     return filesStore.filteredFiles.slice(start, end);
 });
+
+watch(visibleFiles, (newVisibleFiles) => {
+    if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+    }
+
+    scrollTimeout = setTimeout(() => {
+        if (newVisibleFiles.length === 0) return;
+
+        const namesToFetch = newVisibleFiles
+            .filter(file => !file.hasDetails) // Only update details if neccessary
+            .map(file => file.name);
+
+        if (namesToFetch.length > 0) {
+            filesStore.getDetailFileInfo(filesStore.currentPath, namesToFetch);
+        }
+
+    }, 100);
+
+}, { immediate: true });
 
 /* 
  * The spacers ensure that when scrolling all the way to the top or bottom, the entire table is 

@@ -8,6 +8,7 @@ import { useWorkerStore } from './WorkerStore';
 import fileLoader from '@/workers/fileLoader.js?raw';
 import contentLoader from '@/workers/contentLoader.js?raw';
 import fileCreationWorker from '@/workers/fileCreationWorker.js?raw';
+import fileDetailLoader from '@/workers/fileDetailLoader.js?raw';
 import fileEditWorker from '@/workers/fileEditWorker.js?raw';
 import fileCopyMoveWorker from '@/workers/fileCopyMoveWorker.js?raw';
 import dirCreationWorker from '@/workers/dirCreationWorker.js?raw';
@@ -85,7 +86,10 @@ export const useFilesStore = defineStore('files', () => {
             }
 
             files.value = newMap;
+
+            /* Remove selections */
             selectedFiles.value = new Map();
+
             currentPath.value = dir;
         } catch (err) {
             currentPath.value = lastPath.value;
@@ -98,6 +102,35 @@ export const useFilesStore = defineStore('files', () => {
         } finally {
             URL.revokeObjectURL(workerURL);
             isLoading.value = false;
+        }
+    }
+
+    async function getDetailFileInfo(dir, filenames) {
+        const blob = new Blob([fileDetailLoader], { type: 'application/javascript' });
+        const workerURL = URL.createObjectURL(blob);
+
+        try {
+            const res = await workerStore.executeTask(workerURL, 'getDetailFileInfo', {
+                dir,
+                filenames,
+                url: window.location.href,
+            });
+
+            for (const updatedFileData of res) {
+                const existingFile = files.value.get(updatedFileData.name);
+
+                if (existingFile) {
+                    Object.assign(existingFile, updatedFileData, { hasDetails: true });
+                }
+            }
+        } catch (err) {
+            if (err.cancelled) {
+                return;
+            }
+
+            console.error('Worker error:', err);
+        } finally {
+            URL.revokeObjectURL(workerURL);
         }
     }
 
@@ -356,6 +389,7 @@ export const useFilesStore = defineStore('files', () => {
         filteredFiles,
         /* Actions */
         getFiles,
+        getDetailFileInfo,
         refresh,
         getFileContent,
         createFile,
