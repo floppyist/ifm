@@ -337,7 +337,7 @@ export const useFilesStore = defineStore('files', () => {
         try {
             const res = await workerStore.executeTask(workerURL, 'downloadFile', {
                 api: file.type === 'file' ? 'download' : 'zipnload',
-                dir: file.path,
+                dir: currentPath.value,
                 filename: file.name,
                 url: window.location.href,
             });
