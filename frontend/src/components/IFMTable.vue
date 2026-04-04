@@ -15,7 +15,6 @@ import {
 import {
     CloudArrowDownIcon,
     ChevronDoubleUpIcon,
-    EllipsisHorizontalIcon,
 } from '@heroicons/vue/24/solid';
 
 /* Stores */
@@ -72,11 +71,13 @@ const visibleFiles = computed(() => {
     return filesStore.filteredFiles.slice(start, end);
 });
 
+/* Using watch to track scrolling to hotload file details */
 watch(visibleFiles, (newVisibleFiles) => {
     if (scrollTimeout) {
         clearTimeout(scrollTimeout);
     }
 
+    /* Using timeout to debounce which prevents api overload */
     scrollTimeout = setTimeout(() => {
         if (newVisibleFiles.length === 0) return;
 
@@ -89,8 +90,7 @@ watch(visibleFiles, (newVisibleFiles) => {
         }
 
     }, 100);
-
-}, { immediate: true });
+});
 
 /* 
  * The spacers ensure that when scrolling all the way to the top or bottom, the entire table is 
@@ -98,7 +98,6 @@ watch(visibleFiles, (newVisibleFiles) => {
  */
 const topSpacer = computed(() => Math.max(0, startIndex.value) * itemHeight);
 const bottomSpacer = computed(() => Math.max(0, filesStore.filteredFiles.length - endIndex.value) * itemHeight);
-
 
 /*
  * Context menu stuff
@@ -175,8 +174,10 @@ function sortBy(key) {
     filesStore.sorting.ascending = ascending;
 }
 
+const dragOverFilename = ref(null);
+
 function onFileDrop(file) {
-    file.isDragOver = false;
+    dragOverFilename.value = null;
 
     if (file.type !== 'dir') {
         return null;
@@ -195,13 +196,17 @@ function onFileDrop(file) {
 }
 
 function onFileDragEnter(file) {
-    file.isDragOver = true;
+    if (file.type === 'dir') {
+        dragOverFilename.value = file.name;
+    }
 }
 
 function onFileDragLeave(file, event) {
     /* Prevents the isDragOver flag from being set when hovering over child element */
     if (!event.currentTarget.contains(event.relatedTarget)) {
-        file.isDragOver = false;
+        if (dragOverFilename.value === file.name) {
+            dragOverFilename.value = null;
+        }
     }
 }
 
@@ -289,7 +294,7 @@ watch(() => filesStore.search, () => {
         <!-- Static dot folder -->
         <div v-show="filesStore.currentPath !== ''"
             class="sticky top-0 flex border-b border-gray-300 h-[50px] items-center hover:bg-blue-300"
-            :class="[dblDotFolder.isDragOver ? 'bg-green-200' : 'bg-slate-200']"
+            :class="[dragOverFilename === '..' ? 'bg-green-200' : 'bg-slate-200']"
             @dragover.prevent
             @dragenter="onFileDragEnter(dblDotFolder)"
             @dragleave="onFileDragLeave(dblDotFolder, $event)"
@@ -363,7 +368,7 @@ watch(() => filesStore.search, () => {
             <div v-else v-for="file in visibleFiles" :key="file.name" 
                 class="flex border-b border-gray-300 h-[50px] items-center hover:bg-blue-300"
                 :draggable="filesStore.isRecursiveSearch ? false : true"
-                :class="{ 'bg-blue-200': filesStore.selectedFiles.has(file.name), 'bg-green-200' : file.isDragOver && file.type === 'dir' }"
+                :class="{ 'bg-blue-200': filesStore.selectedFiles.has(file.name), 'bg-green-200' : dragOverFilename === file.name }"
                 :style="{ top: itemHeight + 'px' }"
                 @click="toggleFileSelection(file, $event)"
                 @dblclick="toggleFileSelection(file, $event)"
@@ -402,7 +407,7 @@ watch(() => filesStore.search, () => {
                 <div class="w-24 text-left truncate">{{ file.size }}</div>
 
                 <!-- File permissions -->
-                <div class="w-32 justify-center truncate hidden sm:flex">{{ file.fileperms }}</div>
+                <div class="w-32 justify-center truncate hidden sm:flex">{{ file.perms }}</div>
 
                 <!-- File owner -->
                 <div class="w-24 justify-center truncate hidden md:flex">{{ file.owner }}</div>

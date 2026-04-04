@@ -227,39 +227,27 @@ f00bar;
             return $this->i18n['en'];
     }
 
-    private function getFiles($dir) {
-        $relPath = ($dir == "" || $dir == ".") ? "." : "./" . $dir;
-
-        unset($files); unset($dirs); $files = []; $dirs = [];
-
-        if ($handle = opendir($relPath)) {
-            while (false !== ($result = readdir($handle))) {
-                if ($result == basename($_SERVER['SCRIPT_NAME']) && getcwd() == $this->initialWD)
-                    continue;
-                elseif (($result == ".htaccess" || $result==".htpasswd") && $this->config['showhtdocs'] != 1)
-                    continue;
-                elseif ($result == "." || $result == '..')
-                    continue;
-                elseif ($result != ".." && substr($result, 0, 1) == "." && $this->config['showhiddenfiles'] != 1)
-                    continue;
-                else {
-                    $fullPath = rtrim($relPath, "/") . "/" . $result;
-                    $item = $this->getBasicItemInformation($fullPath);
-
-                    if ($item['type'] == "dir")
-                        $dirs[] = $item;
-                    else
-                        $files[] = $item;
-                }
-            }
-
-            closedir($handle);
+    private function getFiles($path='.') {
+        if (empty($path)) {
+            $path = getcwd();
         }
 
-        array_multisort(array_column($dirs, 'name'), SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE, $dirs);
-        array_multisort(array_column($files, 'name'), SORT_ASC, SORT_NATURAL | SORT_FLAG_CASE, $files);
+        $result = [];
+        $dir = new DirectoryIterator($path);
 
-        return array_merge($dirs, $files);
+        foreach ($dir as $fileinfo) {
+            if ($fileinfo->isDot()) continue;
+
+            $isDir = $fileinfo->isDir();
+
+            $result[] = [
+                "name" => $fileinfo->getFilename(),
+                "type" => $isDir ? "dir" : "file",
+                "size" => $isDir ? 0 : $fileinfo->getSize(),
+            ];
+        }
+
+        return $result;
     }
 
     /*
@@ -311,14 +299,14 @@ f00bar;
             $stat = stat($fullPath);
             $uid = $stat['uid'];
 
-            if (!isset($userCache[$uid])) {
+            if ($this->config['showowner'] && !isset($userCache[$uid])) {
                 $userInfo = posix_getpwuid($uid);
                 $userCache[$uid] = $userInfo ? $userInfo['name'] : $uid;
             }
 
             $gid = $stat['gid'];
 
-            if (!isset($groupCache[$gid])) {
+            if ($this->config['showgroup'] && !isset($groupCache[$gid])) {
                 $groupInfo = posix_getgrgid($gid);
                 $groupCache[$gid] = $groupInfo ? $groupInfo['name'] : $gid;
             }

@@ -1,4 +1,4 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, shallowRef } from 'vue';
 
 import { defineStore } from 'pinia';
 
@@ -17,16 +17,17 @@ import recursiveSearchWorker from '@/workers/recursiveSearchWorker.js?raw';
 
 export const useFilesStore = defineStore('files', () => {
     /* State */
-    const files = ref(new Map());
+    const files = shallowRef(new Map());
     const selectedFiles = ref(new Map());
     const recursiveSearchFiles = ref(new Map());
     const currentPath = ref('');
     const lastPath = ref('');
 
     const search = ref('');
-    const sorting = ref({ key: 'name', ascending: true });
+    const sorting = shallowRef({ key: 'name', ascending: true });
 
     const isLoading = ref(false);
+    const isFileListLoaded = ref(false);
     const isRecursiveSearch = ref(false);
 
     /* Used to add debounce for search */
@@ -56,9 +57,7 @@ export const useFilesStore = defineStore('files', () => {
                 if (key === 'size_raw') {
                     result = a[key] - b[key];
                 } else if (typeof a[key] === 'string') {
-                    result = a[key].localeCompare(b[key]);
-                } else {
-                    result = a[key] - b[key];
+                    result = a[key] < b[key] ? -1 : (a[key] > b[key] ? 1 : 0); // A bit faster than localCompare()
                 }
 
                 return ascending ? result : -result;
@@ -68,6 +67,7 @@ export const useFilesStore = defineStore('files', () => {
     /* Actions */
     async function getFiles(dir = '') {
         isLoading.value = true;
+        isFileListLoaded.value = false;
 
         const blob = new Blob([fileLoader], { type: 'application/javascript' });
         const workerURL = URL.createObjectURL(blob);
@@ -82,7 +82,7 @@ export const useFilesStore = defineStore('files', () => {
             const newMap = new Map();
 
             for (const f of res) {
-                newMap.set(f.name, reactive(f));
+                newMap.set(f.name, f);
             }
 
             files.value = newMap;
@@ -91,6 +91,7 @@ export const useFilesStore = defineStore('files', () => {
             selectedFiles.value = new Map();
 
             currentPath.value = dir;
+            isFileListLoaded.value = true;
         } catch (err) {
             currentPath.value = lastPath.value;
 
@@ -384,6 +385,7 @@ export const useFilesStore = defineStore('files', () => {
         search,
         sorting,
         isLoading,
+        isFileListLoaded,
         isRecursiveSearch,
         /* Getters */
         filteredFiles,
