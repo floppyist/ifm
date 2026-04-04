@@ -122,6 +122,8 @@ export const useFilesStore = defineStore('files', () => {
 
                 if (existingFile) {
                     Object.assign(existingFile, updatedFileData, { hasDetails: true });
+
+                    /* FIXME: This triggers the entire files map to reload which has a large overhead */
                     triggerRef(files); // Trigger shallowRef manually
                 }
             }

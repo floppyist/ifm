@@ -237,6 +237,7 @@ f00bar;
 
         foreach ($dir as $fileinfo) {
             if ($fileinfo->isDot()) continue;
+            if (basename($_SERVER['SCRIPT_NAME']) == $fileinfo->getFilename()) continue;
 
             $isDir = $fileinfo->isDir();
 
@@ -270,6 +271,8 @@ f00bar;
 				$item['size'] = "";
 			} else {
 				$item["size_raw"] = filesize($name);
+
+                /* FIXME: this should be done by the frontend - unnecessary performance drop */
 				if ($item["size_raw"] > 1073741824) $item["size"] = round(($item["size_raw"]/1073741824 ), 2) . " GB";
 				elseif($item["size_raw"]>1048576)$item["size"] = round(($item["size_raw"]/1048576), 2) . " MB";
 				elseif($item["size_raw"]>1024)$item["size"] = round(($item["size_raw"]/1024), 2) . " KB";
