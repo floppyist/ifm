@@ -1,4 +1,4 @@
-import { ref, reactive, computed, shallowRef } from 'vue';
+import { ref, reactive, computed, shallowRef, triggerRef } from 'vue';
 
 import { defineStore } from 'pinia';
 
@@ -122,6 +122,7 @@ export const useFilesStore = defineStore('files', () => {
 
                 if (existingFile) {
                     Object.assign(existingFile, updatedFileData, { hasDetails: true });
+                    triggerRef(files); // Trigger shallowRef manually
                 }
             }
         } catch (err) {

@@ -292,7 +292,7 @@ f00bar;
 
         foreach (explode(',', $filenames) as $name) {
             $name = basename($name); 
-            $fullPath = $dir . DIRECTORY_SEPARATOR . $name;
+            $fullPath = $dir === '' ? $name : $dir . DIRECTORY_SEPARATOR . $name;
 
             if (!file_exists($fullPath)) continue;
 
