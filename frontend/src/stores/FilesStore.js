@@ -287,7 +287,8 @@ export const useFilesStore = defineStore('files', () => {
             const newMap = new Map();
 
             for (const f of res) {
-                newMap.set(f.name, reactive(f));
+                /* A path is always served by the backend to distinguish between files with same name */
+                newMap.set(f.path + '/' + f.name, reactive(f));
             }
 
             recursiveSearchFiles.value = newMap;
@@ -337,7 +338,7 @@ export const useFilesStore = defineStore('files', () => {
         try {
             const res = await workerStore.executeTask(workerURL, 'downloadFile', {
                 api: file.type === 'file' ? 'download' : 'zipnload',
-                dir: currentPath.value,
+                dir: file.path ? file.path : currentPath.value,
                 filename: file.name,
                 url: window.location.href,
             });
